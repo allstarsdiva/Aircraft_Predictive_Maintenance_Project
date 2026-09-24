@@ -1,0 +1,68 @@
+{
+  "hydraulic_valve": {
+    "previous": {
+      "metrics": {
+        "accuracy": 0.8398895790200138,
+        "balanced_accuracy": 0.8394478319783198,
+        "macro_f1": 0.8386406440762337
+      },
+      "meets_target": false
+    },
+    "candidate": {
+      "metrics": {
+        "accuracy": 1.0,
+        "balanced_accuracy": 1.0,
+        "macro_f1": 1.0
+      },
+      "meets_target": true
+    },
+    "candidate_sha256": "4fc36db574024b34d92549eee2d046ccb5ea9999c12a340170aa240af9688cc4",
+    "fold_count": 5,
+    "independent_external_test": false,
+    "note": "Fixed winner chosen in earlier inner CV; this whole-dataset check reuses development data, not nested selection or external validation."
+  },
+  "hydraulic_accumulator": {
+    "previous": {
+      "metrics": {
+        "accuracy": 0.8881987577639752,
+        "balanced_accuracy": 0.8885331978319784,
+        "macro_f1": 0.8882101442644489
+      },
+      "meets_target": false
+    },
+    "candidate": {
+      "metrics": {
+        "accuracy": 0.9903381642512077,
+        "balanced_accuracy": 0.9903455284552846,
+        "macro_f1": 0.9903307252508262
+      },
+      "meets_target": true
+    },
+    "candidate_sha256": "4c51856658439e5f63464df382882ab2a2fefd97553f47b108978fba6fc480f5",
+    "fold_count": 5,
+    "independent_external_test": false,
+    "note": "Fixed winner chosen in earlier inner CV; this whole-dataset check reuses development data, not nested selection or external validation."
+  },
+  "battery_soh": {
+    "previous": {
+      "metrics": {
+        "mae": 2.618089324397417,
+        "rmse": 5.171885774497299,
+        "r2": 0.9496480215747544
+      },
+      "meets_target": true
+    },
+    "candidate": {
+      "metrics": {
+        "mae": 1.775031772850609,
+        "rmse": 3.4238972877315206,
+        "r2": 0.9779321437503746
+      },
+      "meets_target": true
+    },
+    "candidate_sha256": "f9b5bf065bac1042c421fb1e1ce6777dc116ee9ab30875fba59de118e0939333",
+    "fold_count": 5,
+    "independent_external_test": false,
+    "note": "Fixed winner chosen in earlier inner CV; this whole-dataset check reuses development data, not nested selection or external validation."
+  }
+}

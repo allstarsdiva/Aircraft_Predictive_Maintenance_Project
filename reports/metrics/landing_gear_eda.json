@@ -1,0 +1,66 @@
+{
+  "rows": 1500,
+  "model_features": 6,
+  "missing_values": 0,
+  "duplicate_feature_rows": 0,
+  "fault_counts": {
+    "0": 300,
+    "1": 500,
+    "2": 500,
+    "3": 200
+  },
+  "fault_rul_summary": {
+    "0": {
+      "rows": 300.0,
+      "rul_min": 85.0078356303542,
+      "rul_mean": 92.53814899361828,
+      "rul_median": 92.82089254951215,
+      "rul_max": 99.9308459148264
+    },
+    "1": {
+      "rows": 500.0,
+      "rul_min": 0.0,
+      "rul_mean": 49.9,
+      "rul_median": 49.9,
+      "rul_max": 99.8
+    },
+    "2": {
+      "rows": 500.0,
+      "rul_min": 0.0,
+      "rul_mean": 49.9,
+      "rul_median": 49.9,
+      "rul_max": 99.8
+    },
+    "3": {
+      "rows": 200.0,
+      "rul_min": 70.0,
+      "rul_mean": 77.4625,
+      "rul_median": 77.4625,
+      "rul_max": 84.925
+    }
+  },
+  "rul_correlations": {
+    "max_deflection": -0.24143483417283976,
+    "max_velocity": -0.9498857713427856,
+    "settling_time": -0.8147442449130083,
+    "mass": -0.0069552528688822364,
+    "k_stiffness": 0.5306658997048278,
+    "b_damping": 0.5295266674700337
+  },
+  "fault_order_transitions": [
+    {
+      "run_id": 301,
+      "fault_code": 1
+    },
+    {
+      "run_id": 801,
+      "fault_code": 2
+    },
+    {
+      "run_id": 1301,
+      "fault_code": 3
+    }
+  ],
+  "run_id_excluded": true,
+  "warning": "This is synthetic within-dataset EDA. Stiffness and damping are latent physics parameters, not confirmed directly measured aircraft sensors."
+}

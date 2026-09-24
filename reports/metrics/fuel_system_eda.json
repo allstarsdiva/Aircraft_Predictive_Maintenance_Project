@@ -1,0 +1,67 @@
+{
+  "rows": 855,
+  "scenarios": 5,
+  "raw_sensors": 8,
+  "model_features": 32,
+  "missing_values": 0,
+  "duplicate_feature_rows": 0,
+  "top_standardized_mean_shifts_from_normal": {
+    "one": [
+      {
+        "sensor": "FTF",
+        "normal_standard_deviations": -8.871593698692246
+      },
+      {
+        "sensor": "FTV_S",
+        "normal_standard_deviations": -7.796292031753847
+      },
+      {
+        "sensor": "CTL",
+        "normal_standard_deviations": 0.3697025269658854
+      }
+    ],
+    "two": [
+      {
+        "sensor": "FTT",
+        "normal_standard_deviations": -84.17575255767376
+      },
+      {
+        "sensor": "FTF",
+        "normal_standard_deviations": -8.917700366610875
+      },
+      {
+        "sensor": "FTV_S",
+        "normal_standard_deviations": -7.789627958518264
+      }
+    ],
+    "three": [
+      {
+        "sensor": "FTT",
+        "normal_standard_deviations": -125.81896720483904
+      },
+      {
+        "sensor": "FTF",
+        "normal_standard_deviations": -8.795052670062338
+      },
+      {
+        "sensor": "FTV_S",
+        "normal_standard_deviations": -7.842864485536971
+      }
+    ],
+    "four": [
+      {
+        "sensor": "FTF",
+        "normal_standard_deviations": -8.901833001064304
+      },
+      {
+        "sensor": "FTV_S",
+        "normal_standard_deviations": -7.953094160097873
+      },
+      {
+        "sensor": "CLF",
+        "normal_standard_deviations": -0.5780038793967326
+      }
+    ]
+  },
+  "warning": "Mean shifts are descriptive. Neutral abnormal scenario IDs do not establish named physical fault causes."
+}

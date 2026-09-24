@@ -1,0 +1,32 @@
+# Data processing
+numpy
+pandas
+
+# Visualization
+matplotlib
+seaborn
+
+# Machine learning
+scikit-learn
+xgboost
+joblib
+
+# Model explainability
+shap
+
+# Application
+streamlit
+fastapi
+uvicorn[standard]
+    
+# Notebooks
+jupyterlab
+ipykernel
+
+# Testing
+pytest
+httpx
+
+#For testing in front of pannels
+cd "C:\Aircraft Predictive Maintenance Project"
+.\.venv\Scripts\python.exe -m pytest -q

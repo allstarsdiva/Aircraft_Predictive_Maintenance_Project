@@ -1,0 +1,165 @@
+{
+  "cycles": 2205,
+  "stable_cycles": 1449,
+  "potentially_unstable_cycles": 756,
+  "target_counts": {
+    "cooler_condition_percent": {
+      "3": 732,
+      "20": 732,
+      "100": 741
+    },
+    "valve_condition_percent": {
+      "73": 360,
+      "80": 360,
+      "90": 360,
+      "100": 1125
+    },
+    "pump_leakage_severity": {
+      "0": 1221,
+      "1": 492,
+      "2": 492
+    },
+    "accumulator_pressure_bar": {
+      "90": 808,
+      "100": 399,
+      "115": 399,
+      "130": 599
+    }
+  },
+  "raw_sensor_files": 17,
+  "processed_rows": 2205,
+  "processed_columns": 125,
+  "feature_columns": 119,
+  "summary_statistics": [
+    "mean",
+    "std",
+    "min",
+    "max",
+    "range",
+    "rms",
+    "slope"
+  ],
+  "sensors": {
+    "PS1": {
+      "physical_quantity": "pressure",
+      "unit": "bar",
+      "sampling_hz": 100,
+      "cycles": 2205,
+      "samples_per_cycle": 6000
+    },
+    "PS2": {
+      "physical_quantity": "pressure",
+      "unit": "bar",
+      "sampling_hz": 100,
+      "cycles": 2205,
+      "samples_per_cycle": 6000
+    },
+    "PS3": {
+      "physical_quantity": "pressure",
+      "unit": "bar",
+      "sampling_hz": 100,
+      "cycles": 2205,
+      "samples_per_cycle": 6000
+    },
+    "PS4": {
+      "physical_quantity": "pressure",
+      "unit": "bar",
+      "sampling_hz": 100,
+      "cycles": 2205,
+      "samples_per_cycle": 6000
+    },
+    "PS5": {
+      "physical_quantity": "pressure",
+      "unit": "bar",
+      "sampling_hz": 100,
+      "cycles": 2205,
+      "samples_per_cycle": 6000
+    },
+    "PS6": {
+      "physical_quantity": "pressure",
+      "unit": "bar",
+      "sampling_hz": 100,
+      "cycles": 2205,
+      "samples_per_cycle": 6000
+    },
+    "EPS1": {
+      "physical_quantity": "motor power",
+      "unit": "W",
+      "sampling_hz": 100,
+      "cycles": 2205,
+      "samples_per_cycle": 6000
+    },
+    "FS1": {
+      "physical_quantity": "volume flow",
+      "unit": "l/min",
+      "sampling_hz": 10,
+      "cycles": 2205,
+      "samples_per_cycle": 600
+    },
+    "FS2": {
+      "physical_quantity": "volume flow",
+      "unit": "l/min",
+      "sampling_hz": 10,
+      "cycles": 2205,
+      "samples_per_cycle": 600
+    },
+    "TS1": {
+      "physical_quantity": "temperature",
+      "unit": "degC",
+      "sampling_hz": 1,
+      "cycles": 2205,
+      "samples_per_cycle": 60
+    },
+    "TS2": {
+      "physical_quantity": "temperature",
+      "unit": "degC",
+      "sampling_hz": 1,
+      "cycles": 2205,
+      "samples_per_cycle": 60
+    },
+    "TS3": {
+      "physical_quantity": "temperature",
+      "unit": "degC",
+      "sampling_hz": 1,
+      "cycles": 2205,
+      "samples_per_cycle": 60
+    },
+    "TS4": {
+      "physical_quantity": "temperature",
+      "unit": "degC",
+      "sampling_hz": 1,
+      "cycles": 2205,
+      "samples_per_cycle": 60
+    },
+    "VS1": {
+      "physical_quantity": "vibration",
+      "unit": "mm/s",
+      "sampling_hz": 1,
+      "cycles": 2205,
+      "samples_per_cycle": 60
+    },
+    "CE": {
+      "physical_quantity": "cooling efficiency",
+      "unit": "%",
+      "sampling_hz": 1,
+      "cycles": 2205,
+      "samples_per_cycle": 60
+    },
+    "CP": {
+      "physical_quantity": "cooling power",
+      "unit": "kW",
+      "sampling_hz": 1,
+      "cycles": 2205,
+      "samples_per_cycle": 60
+    },
+    "SE": {
+      "physical_quantity": "efficiency factor",
+      "unit": "%",
+      "sampling_hz": 1,
+      "cycles": 2205,
+      "samples_per_cycle": 60
+    }
+  },
+  "missing_values": 0,
+  "processed_path": "data\\processed\\hydraulic\\cycle_features.csv"
+}

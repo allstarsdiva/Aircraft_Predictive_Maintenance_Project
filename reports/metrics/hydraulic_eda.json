@@ -1,0 +1,207 @@
+{
+  "rows": 2205,
+  "features": 119,
+  "stable_rows": 1449,
+  "potentially_unstable_rows": 756,
+  "missing_values": 0,
+  "duplicate_feature_rows": 0,
+  "zero_variance_features": [
+    "ps2_min",
+    "ps3_min",
+    "se_min"
+  ],
+  "target_counts": {
+    "cooler_condition_percent": {
+      "3": 732,
+      "20": 732,
+      "100": 741
+    },
+    "valve_condition_percent": {
+      "73": 360,
+      "80": 360,
+      "90": 360,
+      "100": 1125
+    },
+    "pump_leakage_severity": {
+      "0": 1221,
+      "1": 492,
+      "2": 492
+    },
+    "accumulator_pressure_bar": {
+      "90": 808,
+      "100": 399,
+      "115": 399,
+      "130": 599
+    }
+  },
+  "top_stable_cycle_spearman_correlations": {
+    "cooler_condition_percent": [
+      {
+        "feature": "eps1_min",
+        "spearman": 0.9428252116978125
+      },
+      {
+        "feature": "cp_min",
+        "spearman": 0.9428218943017237
+      },
+      {
+        "feature": "ts3_max",
+        "spearman": -0.9428202356168107
+      },
+      {
+        "feature": "fs2_min",
+        "spearman": 0.942819965988364
+      },
+      {
+        "feature": "ts4_max",
+        "spearman": -0.9428182831401822
+      },
+      {
+        "feature": "ts3_min",
+        "spearman": -0.9428181092773754
+      },
+      {
+        "feature": "ts1_max",
+        "spearman": -0.9428174491574339
+      },
+      {
+        "feature": "ts1_min",
+        "spearman": -0.9428171451308286
+      },
+      {
+        "feature": "ts2_max",
+        "spearman": -0.9428157932852032
+      },
+      {
+        "feature": "fs2_max",
+        "spearman": 0.9428149992878008
+      }
+    ],
+    "valve_condition_percent": [
+      {
+        "feature": "se_slope",
+        "spearman": -0.4968361714555974
+      },
+      {
+        "feature": "ps2_slope",
+        "spearman": -0.41161379326819947
+      },
+      {
+        "feature": "fs1_slope",
+        "spearman": -0.29557876410635325
+      },
+      {
+        "feature": "eps1_slope",
+        "spearman": 0.27500218446094554
+      },
+      {
+        "feature": "ps1_slope",
+        "spearman": 0.2698971094687159
+      },
+      {
+        "feature": "ps2_std",
+        "spearman": -0.25236405131653905
+      },
+      {
+        "feature": "ps2_mean",
+        "spearman": 0.20353370103949167
+      },
+      {
+        "feature": "se_mean",
+        "spearman": 0.20215815594086498
+      },
+      {
+        "feature": "ps1_std",
+        "spearman": -0.19146583025080033
+      },
+      {
+        "feature": "se_rms",
+        "spearman": 0.16503170501130268
+      }
+    ],
+    "pump_leakage_severity": [
+      {
+        "feature": "se_rms",
+        "spearman": -0.8212581482786676
+      },
+      {
+        "feature": "se_mean",
+        "spearman": -0.8124034911027033
+      },
+      {
+        "feature": "fs1_rms",
+        "spearman": -0.8004396426810274
+      },
+      {
+        "feature": "fs1_mean",
+        "spearman": -0.7996935158071615
+      },
+      {
+        "feature": "fs1_slope",
+        "spearman": -0.708057813942274
+      },
+      {
+        "feature": "se_slope",
+        "spearman": -0.56380854540956
+      },
+      {
+        "feature": "se_std",
+        "spearman": -0.5230331762394265
+      },
+      {
+        "feature": "se_max",
+        "spearman": -0.48471908955047266
+      },
+      {
+        "feature": "se_range",
+        "spearman": -0.48471908955047266
+      },
+      {
+        "feature": "fs1_std",
+        "spearman": -0.4752286363298107
+      }
+    ],
+    "accumulator_pressure_bar": [
+      {
+        "feature": "ps3_max",
+        "spearman": 0.2753571714007576
+      },
+      {
+        "feature": "ps3_range",
+        "spearman": 0.2753571714007576
+      },
+      {
+        "feature": "ps1_rms",
+        "spearman": -0.24708605125823035
+      },
+      {
+        "feature": "ps1_mean",
+        "spearman": -0.24556864434424439
+      },
+      {
+        "feature": "ps2_rms",
+        "spearman": -0.23822995238749942
+      },
+      {
+        "feature": "ps2_mean",
+        "spearman": -0.23298615970471323
+      },
+      {
+        "feature": "ps2_std",
+        "spearman": -0.2249931096186677
+      },
+      {
+        "feature": "ps2_slope",
+        "spearman": -0.2002236699935567
+      },
+      {
+        "feature": "vs1_slope",
+        "spearman": -0.1907200141383906
+      },
+      {
+        "feature": "eps1_rms",
+        "spearman": -0.19049092004840965
+      }
+    ]
+  }
+}

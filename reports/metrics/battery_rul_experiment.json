@@ -1,0 +1,109 @@
+{
+  "experimental": true,
+  "rows": 493,
+  "batteries": 9,
+  "validation": "leave_one_battery_out",
+  "input_features": 23,
+  "retained_features": 22,
+  "best_model": "random_forest",
+  "selection_metric": "macro_battery_rmse",
+  "metrics": {
+    "median_dummy": {
+      "mae": 29.36713995943205,
+      "rmse": 36.69548778159805,
+      "r2": -0.22327463046357354,
+      "macro_battery_mae": 26.620497243451577,
+      "macro_battery_rmse": 30.222077625709304
+    },
+    "ridge": {
+      "mae": 10.180494793678665,
+      "rmse": 12.453717926872566,
+      "r2": 0.8591046407787671,
+      "macro_battery_mae": 9.93716387005776,
+      "macro_battery_rmse": 11.942864324827017
+    },
+    "random_forest": {
+      "mae": 9.320318593671223,
+      "rmse": 12.283768163733273,
+      "r2": 0.8629238615674415,
+      "macro_battery_mae": 8.117440849775287,
+      "macro_battery_rmse": 9.547833375188056
+    }
+  },
+  "per_battery_metrics": [
+    {
+      "battery_id": "B0005",
+      "rows": 125,
+      "mae": 13.845430115939612,
+      "rmse": 17.64156762199193,
+      "bias": -13.40321221284271
+    },
+    {
+      "battery_id": "B0006",
+      "rows": 109,
+      "mae": 6.9435847440976435,
+      "rmse": 8.17470498562765,
+      "bias": -0.5246209730318041
+    },
+    {
+      "battery_id": "B0018",
+      "rows": 97,
+      "mae": 6.921091563261217,
+      "rmse": 9.014771354976489,
+      "bias": -3.3272914997794563
+    },
+    {
+      "battery_id": "B0042",
+      "rows": 41,
+      "mae": 17.19471159210032,
+      "rmse": 17.91251259854164,
+      "bias": 17.19471159210032
+    },
+    {
+      "battery_id": "B0043",
+      "rows": 41,
+      "mae": 9.69442113770732,
+      "rmse": 10.89964628640686,
+      "bias": 9.69442113770732
+    },
+    {
+      "battery_id": "B0044",
+      "rows": 41,
+      "mae": 3.599705422287743,
+      "rmse": 4.757344593939345,
+      "bias": 2.71035759261064
+    },
+    {
+      "battery_id": "B0046",
+      "rows": 17,
+      "mae": 4.2170498872043,
+      "rmse": 6.231044669138737,
+      "bias": 1.3043903400521026
+    },
+    {
+      "battery_id": "B0047",
+      "rows": 10,
+      "mae": 6.691103549228546,
+      "rmse": 6.799328028984134,
+      "bias": 6.691103549228546
+    },
+    {
+      "battery_id": "B0048",
+      "rows": 12,
+      "mae": 3.9498696361508863,
+      "rmse": 4.499580237085711,
+      "bias": 3.9498696361508863
+    }
+  ],
+  "uncertainty": {
+    "method": "cross_validated_absolute_residual_quantile",
+    "nominal_coverage": 0.9,
+    "empirical_oof_coverage": 0.9026369168356998,
+    "absolute_error_quantile_cycles": 18.551433448495942,
+    "mean_interval_width_cycles": 35.28065015037644,
+    "warning": "Empirical interval from nine observed-EOL batteries; not a certified guarantee."
+  },
+  "validation_seconds": 5.063227099992218,
+  "model_path": "models\\battery\\rul_experimental_bundle.joblib",
+  "features_path": "data\\processed\\battery\\rul_features.csv"
+}

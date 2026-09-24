@@ -1,0 +1,55 @@
+{
+  "subset": "FD001",
+  "training_engines": 100,
+  "training_rows": 20631,
+  "official_test_engines": 100,
+  "capped_rul": 125,
+  "retained_features": 43,
+  "model": "random_forest",
+  "raw_rul_metrics": {
+    "mae": 13.910388955539622,
+    "rmse": 18.713514529920985,
+    "r2": 0.797207834302275
+  },
+  "capped_rul_metrics": {
+    "mae": 12.840388955539622,
+    "rmse": 17.476789908589687,
+    "r2": 0.8097986381136785
+  },
+  "nasa_asymmetric_score": 624.900538296547,
+  "mean_error": 0.25843562826602734,
+  "median_absolute_error": 10.057848191224277,
+  "worst_test_units": [
+    {
+      "unit_id": 45,
+      "actual_rul": 114.0,
+      "predicted_rul": 59.50376506771524,
+      "absolute_error": 54.49623493228476
+    },
+    {
+      "unit_id": 74,
+      "actual_rul": 126.0,
+      "predicted_rul": 77.32098250409132,
+      "absolute_error": 48.67901749590868
+    },
+    {
+      "unit_id": 55,
+      "actual_rul": 137.0,
+      "predicted_rul": 94.99145900230518,
+      "absolute_error": 42.00854099769482
+    },
+    {
+      "unit_id": 18,
+      "actual_rul": 28.0,
+      "predicted_rul": 68.27484791828931,
+      "absolute_error": 40.27484791828931
+    },
+    {
+      "unit_id": 37,
+      "actual_rul": 21.0,
+      "predicted_rul": 61.14269696969699,
+      "absolute_error": 40.14269696969699
+    }
+  ],
+  "model_path": "models\\engine\\fd001_official_test_bundle.joblib"
+}

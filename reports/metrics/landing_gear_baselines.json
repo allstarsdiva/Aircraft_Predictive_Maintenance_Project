@@ -1,0 +1,120 @@
+{
+  "rows": 1500,
+  "validation": "five_fold_stratified_by_fault_code_random_state_42",
+  "run_id_used_as_feature": false,
+  "classification": {
+    "best_feature_set": "physics_assisted",
+    "best_model": "random_forest",
+    "selection_metric": "macro_f1_then_balanced_accuracy",
+    "best_metrics": {
+      "accuracy": 0.998,
+      "balanced_accuracy": 0.9966666666666666,
+      "macro_f1": 0.9975785995927036
+    },
+    "candidate_metrics": {
+      "observable": {
+        "most_frequent": {
+          "accuracy": 0.3333333333333333,
+          "balanced_accuracy": 0.25,
+          "macro_f1": 0.125
+        },
+        "logistic_regression": {
+          "accuracy": 0.8473333333333334,
+          "balanced_accuracy": 0.8737499999999999,
+          "macro_f1": 0.8404791067058897
+        },
+        "random_forest": {
+          "accuracy": 0.9546666666666667,
+          "balanced_accuracy": 0.9564166666666666,
+          "macro_f1": 0.9542458658339693
+        },
+        "extra_trees": {
+          "accuracy": 0.944,
+          "balanced_accuracy": 0.9559166666666667,
+          "macro_f1": 0.943854464190933
+        }
+      },
+      "physics_assisted": {
+        "most_frequent": {
+          "accuracy": 0.3333333333333333,
+          "balanced_accuracy": 0.25,
+          "macro_f1": 0.125
+        },
+        "logistic_regression": {
+          "accuracy": 0.9013333333333333,
+          "balanced_accuracy": 0.9136666666666666,
+          "macro_f1": 0.8933353960532643
+        },
+        "random_forest": {
+          "accuracy": 0.998,
+          "balanced_accuracy": 0.9966666666666666,
+          "macro_f1": 0.9975785995927036
+        },
+        "extra_trees": {
+          "accuracy": 0.9766666666666667,
+          "balanced_accuracy": 0.978,
+          "macro_f1": 0.9754538353195812
+        }
+      }
+    },
+    "model_path": "models\\landing_gear\\fault_classifier_bundle.joblib"
+  },
+  "rul_regression": {
+    "best_feature_set": "physics_assisted",
+    "best_model": "random_forest",
+    "selection_metric": "rmse_then_mae",
+    "best_metrics": {
+      "mae": 1.0764135672261763,
+      "rmse": 2.3785262611460682,
+      "r2": 0.9935535913316481
+    },
+    "candidate_metrics": {
+      "observable": {
+        "median_dummy": {
+          "mae": 24.800346465390327,
+          "rmse": 31.268646889260616,
+          "r2": -0.11408957059294389
+        },
+        "linear_regression": {
+          "mae": 5.527699214911105,
+          "rmse": 7.218387501236165,
+          "r2": 0.9406279127248041
+        },
+        "random_forest": {
+          "mae": 1.344028028488114,
+          "rmse": 2.638521364288081,
+          "r2": 0.9920672610550345
+        },
+        "extra_trees": {
+          "mae": 1.6940427346245461,
+          "rmse": 2.843661087081706,
+          "r2": 0.9907858006792146
+        }
+      },
+      "physics_assisted": {
+        "median_dummy": {
+          "mae": 24.800346465390327,
+          "rmse": 31.268646889260616,
+          "r2": -0.11408957059294389
+        },
+        "linear_regression": {
+          "mae": 4.927926617437367,
+          "rmse": 6.8542443078301405,
+          "r2": 0.9464670603341632
+        },
+        "random_forest": {
+          "mae": 1.0764135672261763,
+          "rmse": 2.3785262611460682,
+          "r2": 0.9935535913316481
+        },
+        "extra_trees": {
+          "mae": 1.3013437420856409,
+          "rmse": 2.485075605624043,
+          "r2": 0.992963103800943
+        }
+      }
+    },
+    "model_path": "models\\landing_gear\\rul_regressor_bundle.joblib"
+  },
+  "validation_statement": "Random stratified out-of-fold evaluation of independent synthetic events. It does not establish performance on real aircraft or a different simulator."
+}

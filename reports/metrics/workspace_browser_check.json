@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "checks": [
+    "Engine: sample -> backend -> result rendered",
+    "Battery: sample -> backend -> result rendered",
+    "Hydraulic: sample -> backend -> result rendered",
+    "Landing gear: sample -> backend -> result rendered",
+    "Fuel system: sample -> backend -> result rendered",
+    "Unstable hydraulic: all four outputs require review",
+    "Invalid JSON: useful error and stale result cleared",
+    "Legacy visual dashboard explicitly labeled simulated",
+    "390px mobile layout: no horizontal overflow",
+    "Backend unavailable: error shown and previous prediction cleared"
+  ],
+  "runtime_errors": [],
+  "browser": "Installed Microsoft Edge (headless)"
+}

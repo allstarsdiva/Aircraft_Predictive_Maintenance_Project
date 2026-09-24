@@ -1,0 +1,63 @@
+{
+  "rows": 855,
+  "sensor_columns": 8,
+  "scenario_counts": {
+    "normal": 171,
+    "one": 171,
+    "two": 171,
+    "three": 171,
+    "four": 171
+  },
+  "binary_target_counts": {
+    "0": 171,
+    "1": 684
+  },
+  "missing_values": 0,
+  "duplicate_sensor_rows": 0,
+  "sensor_ranges": {
+    "FTL": {
+      "min": 21.4803790811612,
+      "max": 100.226707806765
+    },
+    "CTL": {
+      "min": 31.953878345324,
+      "max": 103.583933332315
+    },
+    "FTF": {
+      "min": 0.789370718098799,
+      "max": 5.33848819571963
+    },
+    "FTV_S": {
+      "min": 0.796020557695828,
+      "max": 5.30954421108624
+    },
+    "CLF": {
+      "min": -0.306887349264709,
+      "max": 2.80932853490306
+    },
+    "CLV_S": {
+      "min": -0.312890661533416,
+      "max": 2.77565515045806
+    },
+    "FTT": {
+      "min": -65.4200517263009,
+      "max": -19.1025744443364
+    },
+    "CRTT": {
+      "min": -20.344406991905,
+      "max": -19.6765276845844
+    }
+  },
+  "raw_feature_columns": 8,
+  "derived_feature_columns": 24,
+  "model_feature_columns": 32,
+  "processed_rows": 855,
+  "processed_columns": 36,
+  "rolling_window": 5,
+  "processed_path": "data\\processed\\fuel_system\\scenario_features.csv",
+  "scenario_semantics": {
+    "normal": "authoritatively identified normal scenario",
+    "one_to_four": "authoritatively abnormal; individual fault names not published with the extracted files"
+  },
+  "validation_warning": "Only one normal and four abnormal trajectories are available. Random row splitting would overstate generalization."
+}

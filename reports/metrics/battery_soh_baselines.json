@@ -1,0 +1,69 @@
+{
+  "rows": 2750,
+  "batteries": 34,
+  "train_rows": 2328,
+  "validation_rows": 422,
+  "train_batteries": [
+    "B0005",
+    "B0006",
+    "B0007",
+    "B0018",
+    "B0025",
+    "B0026",
+    "B0027",
+    "B0028",
+    "B0030",
+    "B0031",
+    "B0032",
+    "B0033",
+    "B0034",
+    "B0036",
+    "B0039",
+    "B0040",
+    "B0041",
+    "B0043",
+    "B0045",
+    "B0046",
+    "B0048",
+    "B0051",
+    "B0052",
+    "B0053",
+    "B0054",
+    "B0055",
+    "B0056"
+  ],
+  "validation_batteries": [
+    "B0029",
+    "B0038",
+    "B0042",
+    "B0044",
+    "B0047",
+    "B0049",
+    "B0050"
+  ],
+  "input_features": 23,
+  "retained_features": 23,
+  "best_model": "linear_regression",
+  "metrics": {
+    "median_dummy": {
+      "mae": 24.68932285649592,
+      "rmse": 35.203932398703294,
+      "r2": -0.24051887467153477,
+      "training_seconds": 0.0007637000089744106
+    },
+    "linear_regression": {
+      "mae": 3.984997479835391,
+      "rmse": 10.62695371794043,
+      "r2": 0.8869583213406608,
+      "training_seconds": 0.0028070000116713345
+    },
+    "random_forest": {
+      "mae": 5.580154615020849,
+      "rmse": 13.27199780523994,
+      "r2": 0.8236832296250268,
+      "training_seconds": 0.4004382999992231
+    }
+  },
+  "model_path": "models\\battery\\soh_baseline_bundle.joblib",
+  "features_path": "data\\processed\\battery\\soh_features.csv"
+}

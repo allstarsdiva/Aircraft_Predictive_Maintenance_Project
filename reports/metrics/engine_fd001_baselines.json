@@ -1,0 +1,32 @@
+{
+  "subset": "FD001",
+  "capped_rul": 125,
+  "random_state": 42,
+  "train_engines": 80,
+  "validation_engines": 20,
+  "train_rows": 16561,
+  "validation_rows": 4070,
+  "retained_features": 43,
+  "best_model": "random_forest",
+  "metrics": {
+    "median_dummy": {
+      "mae": 35.941031941031945,
+      "rmse": 44.933420579923414,
+      "r2": -0.1602211046037152,
+      "training_seconds": 0.0008700999896973372
+    },
+    "linear_regression": {
+      "mae": 12.893712592504375,
+      "rmse": 17.048539891176286,
+      "r2": 0.8329770385428138,
+      "training_seconds": 0.019012199991266243
+    },
+    "random_forest": {
+      "mae": 9.928643569701135,
+      "rmse": 14.379164229812815,
+      "r2": 0.8811855977159287,
+      "training_seconds": 1.4210075000009965
+    }
+  },
+  "model_path": "models\\engine\\fd001_baseline_bundle.joblib"
+}

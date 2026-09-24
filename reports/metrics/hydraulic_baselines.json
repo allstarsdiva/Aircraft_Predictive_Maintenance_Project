@@ -1,0 +1,311 @@
+{
+  "training_rows": 1449,
+  "excluded_potentially_unstable_rows": 756,
+  "features": 119,
+  "condition_groups": 144,
+  "validation": "five_fold_stratified_grouped_by_complete_condition_combination",
+  "targets": {
+    "cooler_condition_percent": {
+      "classes": [
+        3,
+        20,
+        100
+      ],
+      "best_model": "logistic_regression",
+      "selection_metric": "macro_f1",
+      "candidate_metrics": {
+        "most_frequent": {
+          "accuracy": 0.3105590062111801,
+          "balanced_accuracy": 0.3113496932515338,
+          "macro_f1": 0.30354381761168675
+        },
+        "logistic_regression": {
+          "accuracy": 1.0,
+          "balanced_accuracy": 1.0,
+          "macro_f1": 1.0
+        },
+        "random_forest": {
+          "accuracy": 1.0,
+          "balanced_accuracy": 1.0,
+          "macro_f1": 1.0
+        },
+        "extra_trees": {
+          "accuracy": 1.0,
+          "balanced_accuracy": 1.0,
+          "macro_f1": 1.0
+        }
+      },
+      "classification_report": {
+        "3": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 480.0
+        },
+        "20": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 480.0
+        },
+        "100": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 489.0
+        },
+        "accuracy": 1.0,
+        "macro avg": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 1449.0
+        },
+        "weighted avg": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 1449.0
+        }
+      },
+      "potentially_unstable_descriptive_metrics": {
+        "accuracy": 0.9603174603174603,
+        "balanced_accuracy": 0.9603174603174603,
+        "macro_f1": 0.9605970281912345
+      },
+      "potentially_unstable_metrics_are_validation": false,
+      "validation_seconds": 8.951129900000524,
+      "model_path": "models\\hydraulic\\cooler_condition_percent_bundle.joblib"
+    },
+    "valve_condition_percent": {
+      "classes": [
+        73,
+        80,
+        90,
+        100
+      ],
+      "best_model": "logistic_regression",
+      "selection_metric": "macro_f1",
+      "candidate_metrics": {
+        "most_frequent": {
+          "accuracy": 0.24154589371980675,
+          "balanced_accuracy": 0.23949864498644985,
+          "macro_f1": 0.15929315355318496
+        },
+        "logistic_regression": {
+          "accuracy": 0.8398895790200138,
+          "balanced_accuracy": 0.8394478319783198,
+          "macro_f1": 0.8386406440762337
+        },
+        "random_forest": {
+          "accuracy": 0.7273982056590752,
+          "balanced_accuracy": 0.7279979674796748,
+          "macro_f1": 0.7306452998291258
+        },
+        "extra_trees": {
+          "accuracy": 0.5624568668046929,
+          "balanced_accuracy": 0.5630250677506775,
+          "macro_f1": 0.5663079290499662
+        }
+      },
+      "classification_report": {
+        "73": {
+          "precision": 0.9166666666666666,
+          "recall": 0.8861111111111111,
+          "f1-score": 0.9011299435028248,
+          "support": 360.0
+        },
+        "80": {
+          "precision": 0.8406593406593407,
+          "recall": 0.85,
+          "f1-score": 0.8453038674033149,
+          "support": 360.0
+        },
+        "90": {
+          "precision": 0.8152866242038217,
+          "recall": 0.7111111111111111,
+          "f1-score": 0.7596439169139466,
+          "support": 360.0
+        },
+        "100": {
+          "precision": 0.7943262411347518,
+          "recall": 0.9105691056910569,
+          "f1-score": 0.8484848484848485,
+          "support": 369.0
+        },
+        "accuracy": 0.8398895790200138,
+        "macro avg": {
+          "precision": 0.8417347181661452,
+          "recall": 0.8394478319783198,
+          "f1-score": 0.8386406440762337,
+          "support": 1449.0
+        },
+        "weighted avg": {
+          "precision": 0.8414402555758882,
+          "recall": 0.8398895790200138,
+          "f1-score": 0.8387017882029953,
+          "support": 1449.0
+        }
+      },
+      "potentially_unstable_descriptive_metrics": {
+        "accuracy": 0.4576719576719577,
+        "balanced_accuracy": 0.4576719576719577,
+        "macro_f1": 0.1569872958257713
+      },
+      "potentially_unstable_metrics_are_validation": false,
+      "validation_seconds": 10.013859700004105,
+      "model_path": "models\\hydraulic\\valve_condition_percent_bundle.joblib"
+    },
+    "pump_leakage_severity": {
+      "classes": [
+        0,
+        1,
+        2
+      ],
+      "best_model": "extra_trees",
+      "selection_metric": "macro_f1",
+      "candidate_metrics": {
+        "most_frequent": {
+          "accuracy": 0.3167701863354037,
+          "balanced_accuracy": 0.31633435582822084,
+          "macro_f1": 0.3091071531817769
+        },
+        "logistic_regression": {
+          "accuracy": 0.9820565907522429,
+          "balanced_accuracy": 0.9819955691888208,
+          "macro_f1": 0.9819885654368496
+        },
+        "random_forest": {
+          "accuracy": 0.989648033126294,
+          "balanced_accuracy": 0.9896088957055215,
+          "macro_f1": 0.9896062361353924
+        },
+        "extra_trees": {
+          "accuracy": 0.9910282953761215,
+          "balanced_accuracy": 0.9909850034083162,
+          "macro_f1": 0.9909805109510326
+        }
+      },
+      "classification_report": {
+        "0": {
+          "precision": 1.0,
+          "recall": 0.9979550102249489,
+          "f1-score": 0.9989764585465711,
+          "support": 489.0
+        },
+        "1": {
+          "precision": 0.9814814814814815,
+          "recall": 0.99375,
+          "f1-score": 0.9875776397515528,
+          "support": 480.0
+        },
+        "2": {
+          "precision": 0.991578947368421,
+          "recall": 0.98125,
+          "f1-score": 0.9863874345549738,
+          "support": 480.0
+        },
+        "accuracy": 0.9910282953761215,
+        "macro avg": {
+          "precision": 0.9910201429499675,
+          "recall": 0.9909850034083162,
+          "f1-score": 0.9909805109510326,
+          "support": 1449.0
+        },
+        "weighted avg": {
+          "precision": 0.991075918459595,
+          "recall": 0.9910282953761215,
+          "f1-score": 0.9910301752218122,
+          "support": 1449.0
+        }
+      },
+      "potentially_unstable_descriptive_metrics": {
+        "accuracy": 0.9986772486772487,
+        "balanced_accuracy": 0.9995446265938069,
+        "macro_f1": 0.9864388243335611
+      },
+      "potentially_unstable_metrics_are_validation": false,
+      "validation_seconds": 9.078500600007828,
+      "model_path": "models\\hydraulic\\pump_leakage_severity_bundle.joblib"
+    },
+    "accumulator_pressure_bar": {
+      "classes": [
+        90,
+        100,
+        115,
+        130
+      ],
+      "best_model": "random_forest",
+      "selection_metric": "macro_f1",
+      "candidate_metrics": {
+        "most_frequent": {
+          "accuracy": 0.24775707384403037,
+          "balanced_accuracy": 0.24441056910569106,
+          "macro_f1": 0.14841421667337898
+        },
+        "logistic_regression": {
+          "accuracy": 0.8033126293995859,
+          "balanced_accuracy": 0.8024728997289973,
+          "macro_f1": 0.8025642323068957
+        },
+        "random_forest": {
+          "accuracy": 0.8861283643892339,
+          "balanced_accuracy": 0.8864837398373985,
+          "macro_f1": 0.886128642058393
+        },
+        "extra_trees": {
+          "accuracy": 0.8812974465148378,
+          "balanced_accuracy": 0.8814532520325203,
+          "macro_f1": 0.8813151477494712
+        }
+      },
+      "classification_report": {
+        "90": {
+          "precision": 0.8453038674033149,
+          "recall": 0.8292682926829268,
+          "f1-score": 0.8372093023255814,
+          "support": 369.0
+        },
+        "100": {
+          "precision": 0.8189415041782729,
+          "recall": 0.8166666666666667,
+          "f1-score": 0.8178025034770514,
+          "support": 360.0
+        },
+        "115": {
+          "precision": 0.9203296703296703,
+          "recall": 0.9305555555555556,
+          "f1-score": 0.925414364640884,
+          "support": 360.0
+        },
+        "130": {
+          "precision": 0.9587912087912088,
+          "recall": 0.9694444444444444,
+          "f1-score": 0.9640883977900553,
+          "support": 360.0
+        },
+        "accuracy": 0.8861283643892339,
+        "macro avg": {
+          "precision": 0.8858415626756168,
+          "recall": 0.8864837398373985,
+          "f1-score": 0.886128642058393,
+          "support": 1449.0
+        },
+        "weighted avg": {
+          "precision": 0.8855897757484597,
+          "recall": 0.8861283643892339,
+          "f1-score": 0.8858247952277545,
+          "support": 1449.0
+        }
+      },
+      "potentially_unstable_descriptive_metrics": {
+        "accuracy": 0.5978835978835979,
+        "balanced_accuracy": 0.600640677393663,
+        "macro_f1": 0.5314091436172673
+      },
+      "potentially_unstable_metrics_are_validation": false,
+      "validation_seconds": 9.805287600000156,
+      "model_path": "models\\hydraulic\\accumulator_pressure_bar_bundle.joblib"
+    }
+  }
+}

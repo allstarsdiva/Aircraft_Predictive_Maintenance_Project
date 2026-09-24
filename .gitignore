@@ -1,0 +1,60 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment variables and local secrets
+.env
+.env.*
+!.env.example
+
+# Raw and generated datasets
+data/raw/**/*
+data/processed/**/*
+!data/raw/**/.gitkeep
+!data/processed/**/.gitkeep
+
+# Trained models and serialized pipelines
+models/**/*
+!models/.gitkeep
+*.joblib
+*.pkl
+*.pickle
+*.onnx
+
+# Generated reports and figures
+reports/figures/**/*
+!reports/figures/.gitkeep
+
+# Build and packaging output
+build/
+dist/
+*.egg-info/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+
+# IDE and operating-system files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Frontend dependencies
+node_modules/
