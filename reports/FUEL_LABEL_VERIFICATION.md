@@ -2,6 +2,19 @@
 
 Checked: 2026-09-10
 
+## Structural follow-up - 2026-09-25
+
+The current `Scenario_Two.csv` parses as eight separate numeric sensor columns.
+Its SHA-256 matches the previously recorded value in
+`docs/data_dictionaries/FUEL_ONSET_VERIFICATION.csv`. The two previously failing
+fuel tests now pass, and the full suite passes 196 tests. Regenerated preprocessing
+in a temporary directory exactly reproduces the existing 855-row processed table.
+
+This confirms consistency of the current raw file with the saved processed table,
+not equivalence to a creator's archive or exact event-onset annotations. Scenario
+labels and model weights were not changed; author/source confirmation remains
+pending.
+
 ## Result: partially verified; exact row-level onset remains unresolved
 
 The public sources support normal/abnormal **scenario** labels. They do not

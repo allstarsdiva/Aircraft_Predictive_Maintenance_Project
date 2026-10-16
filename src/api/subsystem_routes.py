@@ -34,6 +34,7 @@ from src.modeling import (
     HydraulicClassificationBundle,
 )
 from src.preprocess_fuel import add_causal_fuel_features
+from src.fuel_robust_modeling import STEADY_SENSORS, steady_features
 from src.model_release import artifact_root
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -194,6 +195,17 @@ def predict_fuel_system(
     featured = add_causal_fuel_features(frame)
     predicted = bundle.predict_feature_frame(featured)
     margins = bundle.predict_anomaly_score(featured)
+    detector = bundle.detector
+    latest = featured.tail(1)
+    values = steady_features(latest, detector.smoothing, detector.consistency)[0]
+    deviations = np.abs((values - detector.center) / detector.scale)
+    feature_names = list(STEADY_SENSORS)
+    if detector.consistency:
+        feature_names.extend(["flow_pair_difference", "collector_pair_difference", "temperature_difference"])
+    ranked_deviations = [
+        {"feature": str(feature_names[index]), "scaled_deviation": round(float(deviations[index]), 3)}
+        for index in np.argsort(deviations)[::-1][:5]
+    ]
     window = min(3, len(predicted))
     warnings = [
         "Fuel anomaly detection remains experimental: one normal trajectory cannot establish new-mission false-alarm performance.",
@@ -211,6 +223,7 @@ def predict_fuel_system(
         flagged_samples=int(predicted.sum()),
         persistent_last_three=bool(len(predicted) >= 3 and np.all(predicted[-3:] == 1)),
         warnings=warnings,
+        largest_normal_envelope_deviations=ranked_deviations,
     )
 
 

@@ -15,6 +15,14 @@ Interactive OpenAPI documentation is then available at `http://127.0.0.1:8000/do
 | GET | `/api/health` | Service health and API version |
 | GET | `/api/models/engine` | Selected engine-model metadata |
 | GET | `/api/models/subsystems` | Availability and validation metrics for nine non-engine model artifacts |
+| POST | `/api/prediction-history` | Save one user-run prediction summary, optional project asset ID, source, review state, and input digest; raw sensor values are not accepted |
+| GET | `/api/prediction-history?limit=50&asset_id=...` | List the latest saved prediction summaries, optionally filtered by exact asset ID |
+
+Prediction history is stored locally in `data/processed/prediction_history.sqlite3`. Set
+`AIRCRAFT_PREDICTION_HISTORY_DB` to choose another SQLite file location. Only result
+summaries and a one-way input digest are retained, not request payloads. The Fleet
+history is separate from its dataset-example model coverage snapshot; neither one
+represents live aircraft telemetry or maintenance clearance.
 
 ## Prediction Routes
 
@@ -27,6 +35,12 @@ Interactive OpenAPI documentation is then available at `http://127.0.0.1:8000/do
 | POST | `/api/predict/landing-gear` | Six documented event/physics inputs | Fault code/name and RUL percentage |
 
 All request models forbid unexpected top-level fields and reject missing or non-finite numeric values. Model files are loaded lazily and cached; a missing or wrong artifact returns HTTP 503 instead of silently substituting simulated output.
+
+Battery voltage values and fuel tank-level values must be non-negative. Fuel tank
+levels are not capped at 100 because the supplied source data contains small
+sensor overshoots. The UI documents supported source units for each input. JSON
+values themselves carry no unit metadata, so the API cannot detect a value
+submitted in the wrong unit. Unknown source units are not guessed.
 
 ## Battery Input Example
 

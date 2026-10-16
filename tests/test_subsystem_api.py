@@ -2,12 +2,34 @@
 
 from fastapi.testclient import TestClient
 import pandas as pd
+import pytest
+from pydantic import ValidationError
 
 from src.api.app import app
+from src.api.subsystem_schemas import BatteryDischargeSample, FuelSample
 from src.data.battery import load_battery_measurement, load_battery_metadata
 from src.data.fuel_system import FUEL_SENSOR_COLUMNS, load_fuel_scenario
 
 client = TestClient(app)
+
+
+def test_documented_numeric_constraints_reject_impossible_signs_without_clipping_source_values():
+    fuel = {
+        "FTL": 100.22, "CTL": 103.58, "FTF": 1.0, "FTV_S": 1.0,
+        "CLF": -0.2, "CLV_S": -0.1, "FTT": -30.0, "CRTT": -20.0,
+    }
+    assert FuelSample.model_validate(fuel).FTL == 100.22
+    with pytest.raises(ValidationError):
+        FuelSample.model_validate({**fuel, "FTL": -0.01})
+
+    battery = {
+        "voltage_measured": 3.8, "current_measured": -2.0,
+        "temperature_measured": 25.0, "current_load": -2.0,
+        "voltage_load": 3.7, "time": 1.0,
+    }
+    assert BatteryDischargeSample.model_validate(battery).current_load == -2.0
+    with pytest.raises(ValidationError):
+        BatteryDischargeSample.model_validate({**battery, "voltage_measured": -0.1})
 
 
 def _battery_payload():
@@ -67,6 +89,8 @@ def test_fuel_prediction_builds_causal_features_from_ordered_samples():
     assert body["input_samples"] == 8
     assert isinstance(body["latest_is_abnormal"], bool)
     assert isinstance(body["latest_anomaly_margin"], float)
+    assert body["largest_normal_envelope_deviations"]
+    assert body["largest_normal_envelope_deviations"][0]["scaled_deviation"] >= body["largest_normal_envelope_deviations"][-1]["scaled_deviation"]
 
 
 def test_hydraulic_prediction_uses_exact_processed_feature_contract():

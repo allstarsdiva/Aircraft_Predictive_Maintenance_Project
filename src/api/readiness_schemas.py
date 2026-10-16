@@ -20,6 +20,26 @@ class InputSupport(StrictModel):
     abstain: bool
 
 
+class InputQualityTask(StrictModel):
+    status: Literal["within_training_range", "review_required", "not_assessed"]
+    hard_range_violations: list[str] = Field(default_factory=list)
+    tail_range_warnings: list[str] = Field(default_factory=list)
+    detail: str
+
+
+class InputQualityResponse(StrictModel):
+    component: str
+    schema_valid: Literal[True] = True
+    review_required: bool
+    checks: dict[str, InputQualityTask]
+    notes: list[str] = Field(default_factory=list)
+
+
+class ModelFeatureImportance(StrictModel):
+    feature: str
+    relative_importance: float
+
+
 class ReadinessRegressionResult(StrictModel):
     value: float
     lower: float
@@ -28,6 +48,7 @@ class ReadinessRegressionResult(StrictModel):
     unit: str
     accepted: bool
     input_support: InputSupport
+    top_model_features: list[ModelFeatureImportance] = Field(default_factory=list)
 
 
 class ReadinessClassificationResult(StrictModel):
@@ -36,6 +57,7 @@ class ReadinessClassificationResult(StrictModel):
     calibrated_confidence: float
     accepted: bool
     input_support: InputSupport
+    top_model_features: list[ModelFeatureImportance] = Field(default_factory=list)
 
 
 class EngineReadinessResponse(StrictModel):

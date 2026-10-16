@@ -1,5 +1,17 @@
 # Fuel-System Dataset Validation and Preprocessing
 
+## Reverification - 2026-09-25
+
+The current five raw scenario CSVs pass the fuel loader tests. The full test suite
+passes 196 tests. Regenerating preprocessing in a temporary directory produced
+855 rows whose columns and values exactly match the checked-in processed feature
+table. `Scenario_Two.csv` has eight separate numeric sensor columns; its SHA-256
+matches the fingerprint already recorded in `docs/data_dictionaries/FUEL_ONSET_VERIFICATION.csv`.
+
+This confirms structural and preprocessing consistency only. It does not verify
+the source archive version or provide row-level fault-onset labels. The existing
+scenario-membership labels and model metrics are unchanged.
+
 ## Outcome
 
 All five extracted Aircraft Fuel Distribution System CSV files pass structural

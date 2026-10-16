@@ -48,6 +48,7 @@ dist/
 *.log
 *.tmp
 *.temp
+*.sqlite3
 
 # IDE and operating-system files
 .idea/

@@ -205,7 +205,7 @@ The project has reached 50% when all the following are true:
 - [x] Multiple baseline engine models have been trained.
 - [x] MAE and RMSE results have been recorded.
 - [x] The saved engine bundle can produce an RUL prediction from engineered sensor data.
-- [ ] The README explains how to run the prototype.
+- [x] The README explains how to run the prototype.
 
 ### 50% milestone output
 
@@ -280,21 +280,22 @@ Recommended Action: Schedule inspection soon
 
 ## 11. Add Model Explainability
 
-- [ ] Show the most influential sensor measurements.
-- [ ] Add feature-importance charts.
+- [x] Show global model feature importance in each readiness prediction; explicitly distinguish it from a case-specific cause.
+- [x] Add feature-importance bars and fuel normal-envelope deviation details.
 - [ ] Use SHAP or another appropriate explanation method if needed.
-- [ ] Explain predictions in language understandable to maintenance personnel.
-- [ ] State that predictions support—not replace—engineering judgment.
+- [x] Explain uncertainty, support-range warnings, abstentions, and research limitations in the workspace.
+- [x] State that predictions support—not replace—engineering judgment.
 
 ## 12. Build the User Interface
 
 - [x] Build a React model workspace backed by FastAPI.
 - [x] Allow users to enter or upload request JSON and load dataset examples.
+- [x] Import/export strict per-system CSV request examples without changing the API payload format.
 - [x] Display predicted RUL, uncertainty intervals, confidence, and review decisions.
-- [ ] Display the maintenance-risk category.
+- [x] Display the engine prototype maintenance-risk band (not an operational threshold).
 - [ ] Show sensor trends and model explanations.
 - [x] Provide clear validation and error messages.
-- [ ] Make the interface suitable for a project demonstration.
+- [x] Make the interface suitable for a project demonstration; see docs/DEMO_GUIDE.md.
 
 ## 13. Test the Complete System
 
@@ -303,44 +304,47 @@ Recommended Action: Schedule inspection soon
 - [x] Test valid, missing, malformed, cross-engine, and unexpected input fields.
 - [x] Verify that saved engine bundles load correctly.
 - [x] Retest all saved readiness artifacts and representative dataset samples through the FastAPI routes.
+- [x] Test CSV request conversion for every subsystem and reject malformed/mismatched columns.
+- [x] Add an independent-validation manifest gate and keep it blocked until genuinely new, untouched groups are supplied.
 - [x] Run an end-to-end browser test from dataset input to displayed prediction for all five subsystems.
 - [x] Audit disjoint fitting, calibration, and evaluation groups; record unresolved calibration and provenance issues.
 - [x] Freeze a research candidate with verified model, data, source, and dependency fingerprints.
-- [ ] Confirm that the setup works in a clean environment.
+- [ ] Confirm the full project setup in a clean environment, including the Python environment and frontend dependency install/build. The pinned Python environment and 232-test suite passed separately on 2026-10-17; frontend clean setup remains unverified.
 
 ## 14. Complete Documentation
 
-- [ ] Finish the README with setup and usage instructions.
-- [ ] Document the dataset and preprocessing decisions.
-- [ ] Explain the selected algorithms.
-- [ ] Include model comparisons and final results.
-- [ ] Add an architecture or workflow diagram.
-- [ ] Document limitations, safety considerations, and future improvements.
-- [ ] Add screenshots of the application.
+- [x] Finish the README with setup and usage instructions.
+- [x] Document the dataset and preprocessing decisions.
+- [x] Explain the selected algorithms.
+- [x] Include model comparisons and final results.
+- [x] Add an architecture or workflow diagram.
+- [x] Document limitations, safety considerations, and future improvements.
+- [x] Document the independent-validation intake protocol and clean-environment verification workflow.
+- [x] Add screenshots of the application (reports/figures/model-workspace.png).
 
 ## 15. Prepare the Final Demonstration
 
-- [ ] Create a short presentation.
+- [x] Create an eight-slide project-review presentation outline in docs/PROJECT_REVIEW_PRESENTATION.md.
 - [ ] Prepare sample healthy and high-risk engine cases.
-- [ ] Demonstrate the full prediction workflow.
-- [ ] Explain the model results without excessive technical jargon.
-- [ ] Prepare answers about data leakage, model accuracy, and limitations.
-- [ ] Back up the source code, trained model, report, and presentation.
+- [x] Demonstrate the full prediction workflow; browser workflow checks and docs/DEMO_GUIDE.md.
+- [x] Explain the model results in plain language in the project-review outline.
+- [x] Prepare answers about data leakage, model accuracy, and limitations in docs/DEMO_GUIDE.md.
+- [x] Back up the source code, trained models, reports, and presentation draft. Verified archive: `aircraft-pm-project-backup-2026-10-17.zip` in the designated backup folder; raw/processed datasets, environments, and Git internals are excluded.
 
 ## 100% Completion Checklist
 
 The project is complete when all the following are true:
 
-- [ ] The full workflow runs from raw sensor data to prediction.
-- [ ] Multiple models have been compared fairly.
-- [ ] The final model has been evaluated on unseen engines.
-- [ ] Preprocessing and prediction use one reproducible pipeline.
-- [ ] The trained model and preprocessing components are saved.
-- [ ] The application displays RUL and maintenance risk.
+- [x] The full workflow runs from subsystem request data to prediction through the saved models and FastAPI routes; five-system workspace checks are documented in `docs/DEMO_GUIDE.md`.
+- [x] Multiple models have been compared under documented split protocols.
+- [x] The selected engine model has been evaluated on the unseen official NASA FD001 test engines; see `PROJECT_IMPLEMENTATION_SUMMARY.md` and `reports/metrics/engine_fd001_official_test.json`.
+- [x] Saved preprocessing and prediction pipelines are versioned and exercised through the API; this establishes reproducibility on the supplied datasets, not aircraft-level generalization.
+- [x] The trained models and preprocessing components are saved in versioned artifacts.
+- [x] The application displays engine RUL and a clearly labeled prototype maintenance-risk band; it is not an approved maintenance threshold.
 - [ ] Predictions include understandable explanations.
-- [ ] Invalid inputs are handled safely.
-- [ ] Automated or documented tests pass.
-- [ ] Setup, usage, results, and limitations are documented.
+- [x] Invalid inputs are handled safely.
+- [x] Automated tests pass (232 Python tests in configured and fresh pinned Python environments; verified 2026-10-17).
+- [x] Setup, usage, results, and limitations are documented.
 - [ ] The application and presentation are ready for demonstration.
 
 ### 100% milestone output

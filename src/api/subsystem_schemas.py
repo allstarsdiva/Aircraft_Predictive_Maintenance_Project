@@ -10,11 +10,11 @@ from src.api.schemas import StrictModel
 
 
 class BatteryDischargeSample(StrictModel):
-    voltage_measured: float
+    voltage_measured: float = Field(ge=0)
     current_measured: float
     temperature_measured: float
     current_load: float
-    voltage_load: float
+    voltage_load: float = Field(ge=0)
     time: float = Field(ge=0)
 
 
@@ -49,8 +49,10 @@ class BatteryPredictionResponse(StrictModel):
 
 
 class FuelSample(StrictModel):
-    FTL: float
-    CTL: float
+    # Tank-level sensors are percentage-valued in the source paper. Do not cap
+    # at 100: the supplied files contain small observed sensor overshoots.
+    FTL: float = Field(ge=0)
+    CTL: float = Field(ge=0)
     FTF: float
     FTV_S: float
     CLF: float
@@ -72,6 +74,7 @@ class FuelPredictionResponse(StrictModel):
     flagged_samples: int
     persistent_last_three: bool
     warnings: list[str]
+    largest_normal_envelope_deviations: list[dict[str, float | str]] = Field(default_factory=list)
 
 
 class HydraulicPredictionRequest(StrictModel):

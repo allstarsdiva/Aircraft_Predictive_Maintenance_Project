@@ -14,6 +14,19 @@ def test_dataset_examples_produce_real_predictions(component, variant):
     body = sample.json()
     response = client.post(body['endpoint'], json=body['payload'])
     assert response.status_code == 200, response.text
+    prediction = response.json()
+    if component == 'engine':
+        assert prediction['rul']['top_model_features']
+    elif component == 'battery':
+        assert prediction['soh']['top_model_features']
+        assert prediction['rul']['top_model_features']
+    elif component == 'hydraulic':
+        assert all(result['top_model_features'] for result in prediction['predictions'].values())
+    elif component == 'landing-gear':
+        assert prediction['fault']['top_model_features']
+        assert prediction['rul']['top_model_features']
+    else:
+        assert prediction['largest_normal_envelope_deviations']
     assert body['source'] and body['actual']
     if component == 'hydraulic':
         assert body['payload']['operating_condition_stable'] == (variant == 'normal')

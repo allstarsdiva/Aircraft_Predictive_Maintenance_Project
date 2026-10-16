@@ -23,6 +23,8 @@ from src.preprocessing import add_causal_engine_features
 from src.api.subsystem_routes import router as subsystem_router
 from src.api.readiness_routes import router as readiness_router
 from src.api.workspace_routes import router as workspace_router
+from src.api.prediction_history import router as prediction_history_router
+from src.api.security import APIAccessMiddleware
 
 API_VERSION = "0.4.1"
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -67,6 +69,29 @@ def risk_from_rul(predicted_rul: float) -> tuple[str, str]:
     return "Low", "No Immediate Action Required"
 
 
+API_KEY = os.getenv("AIRCRAFT_API_KEY", "").strip() or None
+AUTH_REQUIRED = os.getenv("AIRCRAFT_API_AUTH_REQUIRED", "").strip().lower() in {"1", "true", "yes"}
+API_AUTH_ENABLED = bool(API_KEY) or AUTH_REQUIRED
+configured_origins = os.getenv("AIRCRAFT_ALLOWED_ORIGINS")
+ALLOWED_ORIGINS = (
+    [origin.strip() for origin in configured_origins.split(",") if origin.strip()]
+    if configured_origins is not None
+    else [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ]
+)
+
+
+def _positive_env_int(name: str, default: int) -> int:
+    try:
+        return max(1, int(os.getenv(name, str(default))))
+    except ValueError:
+        return default
+
+
 app = FastAPI(
     title="Aircraft Predictive Maintenance API",
     description=(
@@ -74,15 +99,20 @@ app = FastAPI(
         "Outputs are not certified aircraft maintenance limits."
     ),
     version=API_VERSION,
+    docs_url=None if API_AUTH_ENABLED else "/docs",
+    redoc_url=None if API_AUTH_ENABLED else "/redoc",
+    openapi_url=None if API_AUTH_ENABLED else "/openapi.json",
+)
+app.add_middleware(
+    APIAccessMiddleware,
+    api_key=API_KEY,
+    auth_required=AUTH_REQUIRED,
+    max_body_bytes=_positive_env_int("AIRCRAFT_API_MAX_BODY_BYTES", 25 * 1024 * 1024),
+    rate_limit_per_minute=_positive_env_int("AIRCRAFT_API_RATE_LIMIT_PER_MINUTE", 120),
 )
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -90,6 +120,7 @@ app.add_middleware(
 app.include_router(subsystem_router)
 app.include_router(readiness_router)
 app.include_router(workspace_router)
+app.include_router(prediction_history_router)
 
 
 @app.get("/api/health", response_model=HealthResponse, tags=["service"])

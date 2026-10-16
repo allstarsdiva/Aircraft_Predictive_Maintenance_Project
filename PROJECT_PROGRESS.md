@@ -1,6 +1,6 @@
 # Project Progress
 
-Last updated: 2026-09-15
+Last updated: 2026-10-17
 
 ## Overall Completion: 90% (implementation estimate)
 
@@ -13,9 +13,41 @@ This percentage measures the full five-system application, including models, bac
 | EDA and preprocessing for five systems | 20% | 20% | EDA and leakage-safe preprocessing complete for all five confirmed systems |
 | Model development and unseen-unit validation | 25% | 22% | Scoped retraining produced valve, accumulator, and SOH candidates meeting numerical targets in audit and grouped checks; engine/RUL, calibration, input integration, and independent validation remain unresolved; fuel unchanged |
 | Saved pipelines and FastAPI backend | 15% | 14% | Verified versioned research snapshot, all prediction routes, examples and audit evidence API implemented |
-| React frontend integration | 10% | 8% | Default workspace calls all five backend models; original fleet demo remains explicitly simulated; real trends and explanations remain |
-| Explainability, system testing, documentation, and demo | 10% | 7% | Latest full suite: 194 passed, 2 fuel-data failures; protected v6 retraining and full-trajectory checks complete; best models retained; explainability and final presentation remain |
+| React frontend integration | 10% | 8% | Default workspace calls all five backend models; engine prototype RUL band is displayed with a safety note; fleet demo is labeled simulated; trends and per-prediction explanations remain |
+| Explainability, system testing, documentation, and demo | 10% | 7% | Full Python suite: 232 passed both in the configured environment and a fresh environment installed from requirements-lock.txt on 2026-10-17; results table aligned to readiness-v2.3; independent validation, per-prediction explanations/trends, fresh frontend setup/build, and polished slide deck remain |
 | **Total** | **100%** | **90%** | **Implementation in progress; models are not finally validated** |
+
+## Non-frontend completion work - 2026-10-17
+
+- Ran the full Python regression suite in the configured environment: **232
+  passed** in 40.66 seconds. Recreated an isolated virtual environment from
+  `requirements-lock.txt` and reran the same suite: **232 passed** in 50.95
+  seconds. Pytest temporary files were directed into the workspace because the
+  default Windows user-temp path was inaccessible in the restricted shell.
+- Recorded the CI workflow and clean-setup procedure in `docs/CI_CD.md` and
+  `docs/REPRODUCIBILITY_AND_DEMO.md`. CI is configured but has not been run on
+  the project's GitHub repository in this environment.
+- Kept the frontend out of scope for this work session, as requested.
+- Updated `docs/FINAL_RESULTS_AND_LIMITATIONS.md` to match the active
+  readiness-v2.3 report and distinguish old baseline metrics, accepted-prediction
+  coverage, and development-only fuel scores.
+- Reworked `docs/PROJECT_REVIEW_PRESENTATION.md` into an eight-slide, panel-ready
+  draft with current metrics, speaker notes, and reviewer Q&A; no PowerPoint
+  binary was generated.
+- Created and fully read-verified `aircraft-pm-project-backup-2026-10-17.zip`
+  in the designated backup folder (883 entries; 454,293,178 bytes; SHA-256
+  `8F60F3D29AF1A9C9DC8BAB4CD087D9A9D1A0070CDF7E6B2A294C6A98861594DF`).
+  The archive includes source, model artifacts, reports, and documentation but
+  excludes raw/processed datasets, local environments, and Git internals.
+- The roadmap now has **176/183 items checked (96.2% by raw checklist count)**.
+  This is not the weighted project estimate: seven remaining items include
+  independent aircraft validation, case explanations/trends, a fresh frontend
+  setup/build, and validated demo cases. Overall weighted completion remains
+  **90%**.
+- Overall completion remains **90%**. Independent aircraft-representative data
+  and reviewed labels are unavailable; landing/battery provenance and
+  calibration issues remain; frontend explanation/trend work, a fresh frontend
+  setup/build, and the final slide deck are deferred.
 
 ## Scoped Model Retraining ? 2026-09-11
 
@@ -193,3 +225,36 @@ After every completed project step, update this file and report:
 2. The active subsystem's completion when applicable.
 3. The evidence used to mark the step complete, such as tests, generated reports, or model metrics.
  
+## Fuel Data Verification and Full Test Suite - 2026-09-25
+
+- Both previously failing fuel tests pass against the current `Scenario_Two.csv`.
+- Full regression suite: **196 passed** in 167.71 seconds.
+- Regenerated fuel preprocessing in a temporary directory: all 855 rows, columns,
+  and values match `data/processed/fuel_system/scenario_features.csv` exactly.
+  The raw CSV SHA-256 matches the existing recorded fingerprint.
+- No raw or processed fuel file, labels, model, or release pointer was changed
+  during this verification. The fuel model metrics are therefore unchanged.
+- Row-level fault onset and archive-version provenance remain unconfirmed; this
+  structural/data reproducibility check does not supply those annotations.
+
+Overall implementation remains 90%; remaining validation and presentation work
+is recorded in `reports/FINALIZATION_AUDIT.md` and `reports/FUEL_LABEL_VERIFICATION.md`.
+## Roadmap implementation update - 2026-09-26
+
+- The roadmap now has 163 of 179 checkbox items checked (91.1% by raw count).
+  This count includes repeated end-of-project sign-off items, so it is not a
+  weighted project score. The conservative weighted implementation estimate
+  remains 90%.
+- Updated README setup/run/test/build instructions and added the architecture,
+  representative results and limitations, demo runbook, and an eight-slide
+  review outline. The existing model-workspace screenshot is linked in the roadmap.
+- The live React workspace now displays the engine RUL prototype risk band.
+  It explicitly states that the band is a demonstration threshold, not an
+  approved maintenance limit. No model was retrained or promoted in this UI/docs
+  update.
+- Verification on 2026-09-26: full automated suite **196 passed**; Vite
+  production build passed.
+- Still open: independent aircraft-representative evaluation, per-prediction
+  sensor explanations/trends, clean-environment reproduction, confirmed
+  healthy/high-risk demo cases, and a polished slide deck. These remain
+  unchecked in PROJECT_ROADMAP.md; no aircraft readiness is claimed.

@@ -4,6 +4,10 @@
 
 Location: `data/raw/battery/cleaned_dataset/`
 
+The NASA dataset documentation specifies voltage in volts, current in amps,
+temperature in degrees Celsius, elapsed sample time in seconds, and ambient
+temperature in degrees Celsius. See the [NASA Open Data record](https://data.nasa.gov/dataset/li-ion-battery-aging-datasets).
+
 The supplied dataset is a cleaned CSV conversion containing one metadata table and one measurement CSV per charge, discharge, or impedance test. It is not the original NASA MATLAB archive. The converter, cleaning steps, version, source URL, and license still need to be recorded.
 
 ## Metadata Columns
@@ -12,7 +16,7 @@ The supplied dataset is a cleaned CSV conversion containing one metadata table a
 |---|---|---|
 | `type` | string | Charge, discharge, or impedance experiment |
 | `start_time` | datetime | Test start time parsed from the six-value NASA date vector |
-| `ambient_temperature` | integer | Test ambient temperature |
+| `ambient_temperature` | integer | Test ambient temperature (degrees Celsius) |
 | `battery_id` | string | Battery/cell identifier |
 | `test_id` | integer | Test index within an experiment sequence |
 | `uid` | integer | Globally unique record identifier |
@@ -27,23 +31,23 @@ The cleaned metadata uses `[]` as a missing-value placeholder. The loader conver
 
 | Column | Meaning |
 |---|---|
-| `Voltage_measured` | Measured battery terminal voltage |
-| `Current_measured` | Measured battery current |
-| `Temperature_measured` | Measured battery temperature |
-| `Current_charge` | Charger current |
-| `Voltage_charge` | Charger voltage |
-| `Time` | Elapsed time within the test |
+| `Voltage_measured` | Measured battery terminal voltage (V) |
+| `Current_measured` | Measured battery current (A) |
+| `Temperature_measured` | Measured battery temperature (degrees C) |
+| `Current_charge` | Charger current (A) |
+| `Voltage_charge` | Charger voltage (V) |
+| `Time` | Elapsed time within the test (s) |
 
 ## Discharge Measurement Columns
 
 | Column | Meaning |
 |---|---|
-| `Voltage_measured` | Measured battery terminal voltage |
-| `Current_measured` | Measured battery current |
-| `Temperature_measured` | Measured battery temperature |
-| `Current_load` | Applied load current |
-| `Voltage_load` | Load voltage |
-| `Time` | Elapsed time within the test |
+| `Voltage_measured` | Measured battery terminal voltage (V) |
+| `Current_measured` | Measured battery current (A) |
+| `Temperature_measured` | Measured battery temperature (degrees C) |
+| `Current_load` | Applied load current (A) |
+| `Voltage_load` | Load voltage (V) |
+| `Time` | Elapsed time within the test (s) |
 
 ## Impedance Measurement Columns
 
