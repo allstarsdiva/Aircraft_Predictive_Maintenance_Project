@@ -1,0 +1,385 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{url}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{Intelligent Aircraft Predictive Maintenance with Machine Learning and Real-Time Simulated Data for Maintenance Recommendation and Priority}
+
+\author{\IEEEauthorblockN{Soham Chaudhari}
+\IEEEauthorblockA{\textit{Dept. of CSE (AI \& ML)} \\
+\textit{G. H. Raisoni College of}\\
+\textit{Engineering and Management}\\
+Pune, India \\
+sohamchaudhari11658@gmail.com}
+\and
+\IEEEauthorblockN{Yug Shah}
+\IEEEauthorblockA{\textit{Dept. of CSE (AI \& ML)} \\
+\textit{G. H. Raisoni College of}\\
+\textit{Engineering and Management}\\
+Pune, India \\
+yug254bs@gmail.com}
+\and
+\IEEEauthorblockN{V. Divakar}
+\IEEEauthorblockA{\textit{Dept. of CSE (AI \& ML)} \\
+\textit{G. H. Raisoni College of}\\
+\textit{Engineering and Management}\\
+Pune, India \\
+divakar.v09072005@gmail.com}
+\and[\hfill\mbox{}\newline\mbox{}\hfill]
+\IEEEauthorblockN{Manjusha Mandhane}
+\IEEEauthorblockA{\textit{Dept. of CSE (AI \& ML)} \\
+\textit{G. H. Raisoni College of}\\
+\textit{Engineering and Management}\\
+Pune, India \\
+manjushamandhane@gmail.com}
+\and
+\IEEEauthorblockN{Soma Joshi}
+\IEEEauthorblockA{\textit{Dept. of CSE (AI \& ML)} \\
+\textit{G. H. Raisoni College of}\\
+\textit{Engineering and Management}\\
+Pune, India \\
+somacse.joshi@gmail.com}
+\and
+\IEEEauthorblockN{Swati Barik}
+\IEEEauthorblockA{\textit{Dept. of CSE (AI \& ML)} \\
+\textit{G. H. Raisoni College of}\\
+\textit{Engineering and Management}\\
+Pune, India \\
+swatisucharita10b@gmail.com}
+}
+
+\maketitle
+
+\begin{abstract}
+Aircraft predictive maintenance research has concentrated on the engine, where the NASA CMAPSS benchmark is public and well studied. This paper extends predictive maintenance across five aircraft subsystems: engine, electrical and battery, hydraulic, fuel, and landing gear. Each aircraft subsystem is paired with a publicly available dataset and a prediction task that fits that data, so that every model is chosen on its own merits. The engine module predicts remaining useful life on NASA CMAPSS with a Random Forest regressor and reaches a mean absolute error of 13.80 flight cycles on the 100 unseen FD001 test engines. The battery module estimates state of health with linear regression and remaining useful life with a Random Forest on the NASA PCoE battery aging data, with mean absolute errors of 2.62 percentage points and 9.36 cycles respectively. The hydraulic module classifies cooler, valve, internal pump leakage and accumulator conditions on the UCI hydraulic condition monitoring data with accuracies between 83.99 and 96.1 percent under condition grouped validation. On physics informed digital twin data, the landing gear module classifies four shock strut conditions with a macro F1 of 0.950 and predicts remaining useful life in percent with a mean absolute error of 1.37 percentage points. On the aircraft fuel distribution scenario dataset, an Extra Trees anomaly detector catches 93.13 percent of abnormal rows and serves as a sensitive screening signal for the decision layer. Outputs from every module pass through a common interpretation layer that produces two maintenance decisions, a recommendation and a priority level, which a FastAPI backend serves to a React dashboard fed by simulated real time telemetry. Grouped or chronological validation is used wherever the data have unit or temporal structure. The paper describes the datasets, models, validation protocols and decision layer in enough detail for the system to be reproduced.
+\end{abstract}
+
+\begin{IEEEkeywords}
+aircraft predictive maintenance, aircraft health monitoring, aircraft subsystems, remaining useful life, state of health, condition monitoring, machine learning, simulated aircraft telemetry, aircraft maintenance decision support
+\end{IEEEkeywords}
+
+\section{Introduction}
+Aircraft maintenance is expensive, and unscheduled maintenance is the most expensive kind. Gerdes, Scholz and Galar studied in service delay records for the air conditioning system of an Airbus fleet and concluded that a large share of the delay causing maintenance actions could have been anticipated if additional condition monitoring sensors had been installed \cite{b6}. The same logic drives the wider move from fixed interval servicing toward condition based maintenance, a shift that Jardine, Lin and Banjevic framed as three linked steps: data acquisition, data processing, and maintenance decision making \cite{b3}. Integrated Vehicle Health Management (IVHM) extends that view to the whole aircraft and brings every subsystem under one health management picture \cite{b5}.
+
+Machine learning has become the standard tool for the data processing step. Lei et al. organised the prognostics literature into data acquisition, health indicator construction, health stage division and remaining useful life (RUL) prediction, and documented how data driven methods have spread through each stage \cite{b4}. Fink et al. later reviewed deep learning in prognostics and health management (PHM) and mapped its potential and future directions across detection, diagnostics and prognostics \cite{b15}.
+
+In aviation, most published work concentrates on the engine. Stanton et al. observed this in a systematic review of aircraft predictive maintenance \cite{b1}, and Scott et al. saw the same pattern for defence fixed wing platforms \cite{b2}. The turbofan degradation simulation released by Saxena et al. \cite{b8, b9} has become the default benchmark and has shown how much a good public dataset can do for a field. The opportunity now is to give the other aircraft subsystems the same treatment, using the public datasets that exist for batteries, hydraulics, fuel systems and landing gear.
+
+This paper takes that opportunity. We built a predictive maintenance framework that spans five aircraft subsystems and, for each one, selected a relevant public dataset and then chose the prediction task and model that suit the data. The contributions are as follows.
+
+\begin{itemize}
+\item A five subsystem framework (engine, electrical and battery, hydraulic, fuel, landing gear) in which heterogeneous datasets with different formats, sampling rates and targets are brought into one preprocessing, prediction and decision pipeline.
+\item Trained and evaluated models for all five aircraft subsystems: engine RUL, battery state of health (SOH) and experimental battery RUL, four hydraulic condition classification tasks, landing gear fault classification and RUL, and fuel anomaly detection, with grouped or chronological validation wherever the data have unit or temporal structure.
+\item A safety oriented calibration study for engine RUL that reduces the rate of late predictions near failure.
+\item A maintenance interpretation layer that converts every subsystem output into a Maintenance Recommendation and a Maintenance Priority, exposed through a FastAPI backend and a React dashboard driven by simulated real time telemetry.
+\item A review of the public data sources available for each aircraft subsystem, which motivates the five subsystem scope.
+\end{itemize}
+
+The rest of the paper is organised as follows. Section II reviews related work for each subsystem and for maintenance decision support. Section III describes the datasets and the final subsystem scope. Section IV presents the pipeline, validation strategy, models and metrics. Section V reports and discusses the results, and Section VI concludes with future directions.
+
+\section{Related Work}
+
+\subsection{Engine Prognostics}
+The CMAPSS dataset was generated by Saxena et al. by simulating flow and efficiency degradation in the modules of a large commercial turbofan and recording the resulting sensor responses until failure \cite{b8}. The same authors introduced the asymmetric scoring function that penalises late RUL predictions more than early ones, and later formalised a broader set of offline prognostic metrics \cite{b14}. Heimes trained a recurrent neural network for the original PHM08 challenge and is usually credited with the piecewise linear RUL target, in which RUL is held constant early in life and allowed to decrease only near the end \cite{b10}. That convention was carried into the convolutional model of Babu, Zhao and Li \cite{b11} and the long short term memory network of Zheng et al. \cite{b12}, both evaluated on CMAPSS. Tree ensembles remain competitive on the same benchmark. Alomari, And\'o and Baptista compared Random Forest, gradient boosted and neural regressors and proposed an aggregated feature importance procedure that keeps a small number of informative features \cite{b13}. Our engine module builds on this line of work but is framed as one module in a larger system rather than as a new engine model.
+
+\subsection{Battery Prognostics}
+The NASA Prognostics Center of Excellence (PCoE) battery dataset records charge, discharge and impedance cycles on 18650 lithium ion cells until they reach a capacity fade criterion \cite{b16}. Saha et al. used it to develop a Bayesian framework combining relevance vector machines with particle filters for state of charge, SOH and RUL estimation with uncertainty bounds \cite{b17}. Later work has covered most of the machine learning toolbox: Li et al. estimated SOH from incremental capacity features with Gaussian process regression \cite{b18}, Ren et al. combined an autoencoder with deep networks for RUL \cite{b19}, and Swain et al. compared Random Forest and support vector regressors on the same data \cite{b20}. Mbagaya, Reddy and Botes reviewed these families of models and observed that sequence aware networks tend to outperform classical regressors when enough cycles are available \cite{b21}. A specific point of method matters for us: Mohamud et al. evaluated their hybrid model under leave one battery out cross validation \cite{b24}, which is the protocol we adopt for the RUL experiment. The link to aircraft is direct. Goebel et al. argued that remaining flight time for an electric aircraft depends on battery age as much as on charge \cite{b22}, and Kulkarni, Roychoudhury and Schumann demonstrated onboard battery prognostics on an electric propulsion test aircraft \cite{b23}.
+
+\subsection{Hydraulic Condition Monitoring}
+The hydraulic dataset used here was collected by Helwig, Pignanelli and Sch\"utze on an instrumented test rig and released through the UCI Machine Learning Repository \cite{b25}. Their original paper applied multivariate statistics to detect induced faults in the cooler, valve, pump and accumulator \cite{b26}, and a follow up by Schneider, Helwig and Sch\"utze automated feature extraction and selection for cyclical time series \cite{b27}. The dataset has since become a common benchmark. Alenany, Helmi and Nasef reported that a Random Forest trained on six time domain statistics per sensor performs well on all four targets, with the accumulator target being the hardest \cite{b28}. K\"onig and Helmi applied convolutional networks directly to the raw signals and used occlusion analysis to rank sensors \cite{b29}, and Kim and Heo compared eight classifiers after Boruta feature selection \cite{b30}. A recent preprint by Shamim et al. warns that random or sliding window splits on this time ordered dataset can produce unstable and inflated results \cite{b32}, a concern that shaped our validation design. Aviation specific hydraulic diagnosis has been explored with one dimensional multichannel convolutional networks by Shen and Zhao \cite{b31}, and Khan et al. surveyed the state of predictive maintenance for aircraft engine and hydraulic systems, noting that dedicated work on hydraulics remains limited \cite{b7}.
+
+\subsection{Fuel System Fault Detection}
+Public data for aircraft fuel systems are rare. The dataset we use was published by Aslansefat et al. and describes a simplified aircraft fuel distribution system with two tanks feeding two engines, each instrumented with level, temperature and flow sensors \cite{b33}. It originates from the Safety+AI work of Gheraibia et al., who combined fault tree analysis with machine learning so that safety models could be updated from operational data \cite{b34}. Earlier laboratory work at Cranfield used a bench top fuel rig to design IVHM sensor placement and diagnostic rules \cite{b36} and to detect valve faults with Bayesian change point detection \cite{b37}. Skaf et al. recently emulated filter clogging on a similar rig with a proportional valve, defined five clogging severity classes, and compared neural network, nearest neighbour, naive Bayes and decision tree classifiers \cite{b35}; their measurements do not appear to be publicly released, so that paper serves as a reference rather than a data source. Jigajinni modelled a four tank fuel system and used neural and neuro fuzzy controllers to detect leakage and pump faults \cite{b38}.
+
+\subsection{Landing Gear Health Monitoring}
+Landing gear work is split between structural fatigue assessment and component level diagnosis. El Mir and Perinpanayagam reviewed the certification issues that arise when machine learning is used for safe life assessment of landing gear \cite{b45}. Pinello et al. built a preliminary nose landing gear digital twin and tested diagnostic algorithms on the steering, retraction and oleo pneumatic shock absorber subsystems \cite{b41}. Li, Chen and Qin generated a simulation based training database from a multibody model and trained a deep network to detect changes in orifice area, gas pressure and gas volume of the shock absorber from accelerometer signals \cite{b42}. Chen et al. addressed retraction and extension faults with a dilated convolutional network \cite{b43}, and Kadripathi et al. proposed a two tier classifier that corrects irregular sensor readings before diagnosis \cite{b44}. NASA's electro mechanical actuator programme produced both an experimental fault injection test bed \cite{b46} and a diagnostic approach based on failure mode analysis \cite{b47}, though those resources are exposed mainly as papers rather than as ready to use datasets. A physics informed digital twin of a Dornier 228 shock strut has been described in a preprint by Sani and Uhiah \cite{b40}, and a companion dataset is available on Kaggle \cite{b39}. That dataset is the basis of our landing gear module.
+
+\subsection{Maintenance Decision Support and Validation}
+Producing a health estimate is not the same as deciding what to do. Bougacha, Varnier and Zerhouni reviewed post prognostic decision making and found that most PHM papers stop at prediction and leave the translation into maintenance actions to the reader \cite{b50}. Lee et al. used agent based modelling to identify twenty hazards that data driven predictive maintenance can introduce into airline operations \cite{b57}. On the evaluation side, Kaufman et al. defined data leakage and proposed a learn predict separation discipline \cite{b52}, and Bergmeir and Ben\'itez showed that plain k fold cross validation can be misleading for time series and argued for blocked schemes \cite{b53}. Digital twins are increasingly used to generate telemetry for such systems; Hartwell et al. describe distributed engine twins that update in flight and prioritise anomalous data \cite{b51}. We also draw on the standard references for Random Forests \cite{b54}, extremely randomised trees \cite{b55} and imbalance aware classification metrics \cite{b56}.
+
+\subsection{Public Data Availability}
+Selecting the five subsystems meant examining several public sources that serve a different purpose from component health prediction. CMAPSS models turbofan module degradation and so belongs to the engine module only \cite{b8}. A centrifugal pump dataset from the Italian Aerospace Research Centre concerns industrial boiler feed pumps rather than aircraft fuel pumps, and the fuel rig measurements of Skaf et al. \cite{b35} are described but not released. The FAA Service Difficulty Reports are narrative incident records suited to text mining, as Niraula et al. showed for depressurisation events \cite{b48}, rather than sensor time series, and NASA's electro mechanical actuator work is available as papers rather than as a dataset \cite{b46, b47}. For avionics, the NASA DASHlink Sample Flight Data project offers roughly 99,000 commercial flights labelled as nominal or as one of three approach anomalies \cite{b49}. It describes how an approach was flown rather than the condition of an avionics component, so avionics is treated here as part of the data gap rather than as an implemented module.
+
+\subsection{Research Gap}
+Across these strands two gaps stand out. First, most aircraft predictive maintenance systems in the literature address a single subsystem, and engines dominate \cite{b1}. Second, few papers carry a prediction through to a maintenance recommendation and priority \cite{b50}. The framework presented here closes both gaps within one working system and states clearly what each dataset represents.
+
+\section{Aircraft Datasets and Subsystem Scope}
+Table~\ref{tab_scope} summarises the final scope. The five aircraft subsystems were chosen deliberately. Each one has a public dataset that is relevant to its health, and together they cover four distinct prediction settings: continuous RUL regression, continuous SOH regression, multi class condition classification, and scenario or fault classification.
+
+\begin{table}[htbp]
+\caption{Aircraft Subsystems, Data Sources and Prediction Tasks}
+\begin{center}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{|p{0.75in}|p{1.45in}|p{0.85in}|}
+\hline
+\textbf{Subsystem} & \textbf{Data source and nature} & \textbf{Task} \\
+\hline
+Engine & NASA CMAPSS, simulated degradation \cite{b8, b9} & RUL regression \\
+\hline
+Electrical and Battery & NASA PCoE battery aging, experimental \cite{b16} & SOH regression, experimental RUL \\
+\hline
+Hydraulic & UCI hydraulic rig, condition monitoring \cite{b25} & Condition classification \\
+\hline
+Fuel & Fuel distribution scenarios, simplified system \cite{b33} & Binary anomaly detection \\
+\hline
+Landing Gear & Digital twin, physics informed synthetic \cite{b39} & Fault classification and RUL regression \\
+\hline
+\end{tabular}
+\label{tab_scope}
+\end{center}
+\end{table}
+
+\subsection{Engine}
+The CMAPSS FD001 subset contains 100 training engines run to failure and 100 test engines truncated before failure, with true RUL supplied separately for the test set \cite{b9}. Each row holds three operational settings and 21 sensor channels. FD001 uses a single operating condition and a single fault mode, which makes it the cleanest subset for a first module.
+
+\subsection{Electrical and Battery}
+The PCoE battery set records terminal voltage, current, temperature, charger current and voltage, time, discharge capacity and impedance quantities including electrolyte and charge transfer resistance for lithium ion cells cycled to a capacity fade criterion \cite{b16}. It is a laboratory battery aging dataset, and the subsystem is labelled Electrical and Battery in the dashboard because battery health is the electrical quantity for which rich public prognostic data exist.
+
+\subsection{Hydraulic}
+The UCI hydraulic set has 2,205 cycles of 60 seconds each and about 43,680 raw values per cycle across 17 channels: six pressure sensors (PS1 to PS6) and motor power (EPS1) at 100 Hz, two flow sensors (FS1, FS2) at 10 Hz, four temperature sensors (TS1 to TS4) and one vibration sensor (VS1) at 1 Hz, and three virtual signals for cooling efficiency, cooling power and system efficiency (CE, CP, SE) \cite{b25}. Labels give cooler condition, valve condition, internal pump leakage, hydraulic accumulator pressure and a stable flag that marks whether the rig had settled during the cycle. We keep the dataset's own label names throughout.
+
+\subsection{Fuel}
+The Aircraft Fuel Distribution System dataset provides one normal scenario and four abnormal scenarios as separate CSV files \cite{b33}. Our inspection found 855 rows in total across the five files, eight numerical sensor columns shared by all files, no missing values, no non finite values and no duplicate sensor rows. The system it describes has a front tank feeding the port engine and a rear tank feeding the starboard engine, with tank level and temperature sensors, valve flow sensors and pipe flow sensors. It describes a compact, well instrumented fuel distribution system, which makes it a clear and interpretable test case.
+
+\subsection{Landing Gear}
+The landing gear dataset is synthetic. It was generated from a physics informed digital twin of a Dornier 228 oleo pneumatic shock strut and provides per landing features such as maximum deflection, maximum velocity, settling time, mass, stiffness and damping, together with a fault code (normal, nitrogen gas leak with reduced stiffness, worn seal with reduced damping, early structural degradation) and an RUL percentage from 100 for new to 0 for failure \cite{b39, b40}. Because the data come from a physics informed twin, the module can be evaluated across the full range of fault conditions, including ones that are rare in service.
+
+\section{Methodology}
+
+\subsection{Pipeline}
+Fig.~\ref{fig_arch} shows the architecture. Every aircraft subsystem, whether fed from a stored dataset or from the telemetry simulator, passes through the same sequence: data validation, preprocessing, feature engineering, subsystem model, prediction, health interpretation, and finally the two maintenance outputs. The subsystem models differ; the surrounding stages are shared.
+
+\begin{figure*}[!t]
+\centerline{\includegraphics[height=0.95\textheight]{fig1_light.png}}
+\caption{Architecture of the proposed Intelligent Aircraft Predictive Maintenance System.}
+\label{fig_arch}
+\end{figure*}
+
+\subsection{Data Validation and Preprocessing}
+Each raw dataset is checked for schema, dimensions, missing and non finite values and duplicate rows, and a manifest with SHA 256 checksums records the processed files. For CMAPSS we attach a cycle index per engine, derive RUL as the difference between the final cycle and the current cycle, and cap the target at 125 cycles following the piecewise linear convention \cite{b10, b12}. Sensors with zero variance in FD001 are removed. Standardisation statistics are fitted on the training engines only. For the battery data, charge, discharge and impedance records are parsed and ordered chronologically per cell, SOH is defined as the ratio of the current discharge capacity to the initial capacity expressed in percent, and about 21 features are extracted from each discharge curve. For the hydraulic data the sensor matrices are validated against the documented sampling rates and reduced to per cycle summary statistics. For the fuel data, causal rolling statistics are computed within each scenario file, yielding 32 model features from the eight raw sensors.
+
+\subsection{Feature Engineering}
+Rolling features are computed causally, meaning that a feature at cycle $t$ uses only observations up to $t$. This matters because the same pipeline runs on streaming telemetry, where only past samples are available. Rolling means and rolling deviations from the mean are used for the engine and fuel modules, and per cycle statistics such as mean, standard deviation, slope and extremes are used for the hydraulic module, in line with the features Alenany et al. found sufficient \cite{b28}.
+
+\subsection{Validation Strategy}
+Grouped or chronological splits were used wherever the data have unit or temporal structure, so that every reported score reflects generalisation to unseen units \cite{b52, b53}. The rules applied were as follows.
+
+\begin{itemize}
+\item Engine. Engine grouped validation, so that all cycles of one engine fall on the same side of the split, followed by a single evaluation on the official FD001 test set of 100 unseen engines.
+\item Battery. Chronological handling within each cell for SOH, and leave one battery out evaluation for the RUL experiment, so that a cell never contributes to both training and testing \cite{b24}.
+\item Hydraulic. Condition grouped validation, in which cycles that share a condition combination are kept together. Unstable cycles, identified by the stable flag, are also evaluated separately.
+\item Fuel. The task is binary anomaly detection, normal rows against abnormal rows. Whole scenario files are held out: each fold removes one complete abnormal scenario together with a contiguous block of the normal trajectory, so no row from a held out scenario is ever seen in training.
+\item Landing Gear. Five fold grouped validation in which each fold holds out complete aircraft mass regimes, so the fault classifier and the RUL regressor are always scored on landings whose mass regime they were not trained on.
+\end{itemize}
+
+\subsection{Models}\label{sec_models}
+Models were chosen per task after comparison, each on its own merits. Linear regression is used for battery SOH because the target is continuous and the linear model matched or beat more flexible alternatives on the evaluated features. Logistic regression is used for the hydraulic cooler and valve targets, which are ordinal multi class problems with clear separation in the summary features. Random Forests \cite{b54} are used for engine RUL, battery RUL, hydraulic accumulator pressure, and both landing gear tasks, where the relationship between summary features and target is nonlinear and tabular. Extremely randomised trees \cite{b55} gave the best result on internal pump leakage and were also selected for fuel anomaly detection as the challenger to a Random Forest baseline. Hyperparameters for the engine Random Forest were tuned under the engine grouped split. For the valve condition and accumulator pressure targets a confidence rule is applied at inference. A prediction is accepted when the model's class probability reaches a calibrated threshold, 0.8889 for the valve and 0.5781 for the accumulator, and when the input values fall inside the range seen in training; otherwise the cycle is flagged for review, so that the maintainer always sees an honest confidence level. Trained models are stored as bundles containing the estimator, the feature list and the scaler so that the API serves exactly the pipeline that was evaluated.
+
+\subsection{Evaluation Metrics}
+For the regression tasks we report mean absolute error (MAE), root mean squared error (RMSE) and the coefficient of determination $R^2$. MAE is the average absolute difference between predicted and true values, RMSE is the square root of the average squared difference, both in the unit of the target, and the gap between them shows how evenly the error is spread across samples. $R^2$ is the share of variance in the target that the model explains. For the classification tasks we report accuracy, the share of correctly classified samples; balanced accuracy, the mean of the per class recalls, which a majority class cannot inflate; and macro F1, the unweighted mean of the per class F1 scores, which gives minority classes the same weight as majority classes \cite{b56}. For the binary fuel task we report the detection rate, the share of abnormal rows that are flagged, and the false alarm rate, the share of normal rows that are flagged. For engine RUL we additionally examine the direction of the error near failure, because an early prediction (predicted RUL below true RUL) is the safer side to err on \cite{b8, b14}.
+
+\subsection{Maintenance Recommendation and Priority}
+The interpretation layer maps every aircraft subsystem output onto a common health state and then onto two maintenance decisions. The Maintenance Recommendation takes one of four values: Monitor, Inspect, Schedule Maintenance, or Immediate Maintenance. The Maintenance Priority takes one of four levels: Low, Medium, High, or Critical. Table~\ref{tab_decision} shows the intended mapping for the regression modules, expressed in terms of RUL bands and SOH bands; classification modules map predicted fault classes to the same states, with a normal or fully functional class mapping to Monitor and the most severe class to Immediate Maintenance. Thresholds are stored as configuration so that they can be tuned for a given fleet without changing the architecture. The decision layer is deliberately focused on these two outputs, in the spirit of the post prognostic decision literature that separates health assessment from resource planning \cite{b50}.
+
+\begin{table}[htbp]
+\caption{Proposed Mapping from Aircraft Subsystem Health State to Maintenance Outputs}
+\begin{center}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{|p{1.3in}|p{1.05in}|p{0.5in}|}
+\hline
+\textbf{Health state}$^{\mathrm{a}}$ & \textbf{Recommendation} & \textbf{Priority} \\
+\hline
+RUL above 50 cycles, SOH high & Monitor & Low \\
+\hline
+RUL 20 to 50 cycles, SOH reduced & Inspect & Medium \\
+\hline
+RUL 20 cycles or below & Schedule Maintenance & High \\
+\hline
+Severe fault class, RUL near zero$^{\mathrm{b}}$ & Immediate Maintenance & Critical \\
+\hline
+\multicolumn{3}{p{2.85in}}{$^{\mathrm{a}}$The RUL bands are used for the engine and battery RUL outputs, and the SOH bands for the battery health output. The cut off values are settings that an operator can change for its own fleet.} \\
+\multicolumn{3}{p{2.85in}}{$^{\mathrm{b}}$For the hydraulic, fuel and landing gear classifiers, the predicted class is placed on the same rows by severity: a normal class goes to Monitor and the most severe class goes to Immediate Maintenance.}
+\end{tabular}
+\label{tab_decision}
+\end{center}
+\end{table}
+
+\subsection{Real Time Simulated Telemetry and Implementation}
+The words real time in the title refer to simulated telemetry. A telemetry simulator emits sensor values for each aircraft subsystem at a configurable rate, and those values are posted to a FastAPI backend written in Python. The backend validates each message, applies the same causal feature pipeline used in training, loads the relevant model bundle, and returns the prediction together with the health state, recommendation and priority. A React dashboard built with Vite, Recharts and Tailwind CSS displays fleet level and subsystem level views. Backend routes exist for all five aircraft subsystem models. The dashboard currently combines backend predictions with locally simulated values while the remaining views are switched over, and the fuel route, consistent with its screening role, is held back from the production readiness check. The simulator makes it possible to exercise the full pipeline end to end and to replay degradation scenarios on demand, and a suite of automated tests covers data loading, feature construction and endpoint behaviour.
+
+\section{Results and Discussion}
+
+\subsection{Engine RUL}
+Table~\ref{tab_regression} lists the regression results for the engine, battery and landing gear tasks. On the 100 FD001 test engines that the model never saw during training, the tuned Random Forest reaches an MAE of 13.80 cycles, an RMSE of 18.61 cycles and an $R^2$ of 0.799. In plain terms, the predicted remaining life is off by about 14 flight cycles on average, and the model explains about 80 percent of the variation in the capped RUL target. The RMSE sits above the MAE, which tells us that most engines are predicted closely while a smaller number carry larger errors. That spread is expected when RUL is capped at 125 cycles: early in life the sensor channels change little from one cycle to the next, so the model has less to work with than it does once the degradation trend has set in. The same trained model is served through the API, so every engine prediction shown on the dashboard comes from the model reported here.
+
+\begin{table}[htbp]
+\caption{Regression Results for Engine, Battery and Landing Gear Tasks}
+\begin{center}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{|p{0.95in}|p{0.8in}|c|c|c|}
+\hline
+\textbf{Task} & \textbf{Model} & \textbf{MAE} & \textbf{RMSE} & \textbf{$R^2$} \\
+\hline
+Engine RUL (cycles)$^{\mathrm{a}}$ & Random Forest & 13.80 & 18.61 & 0.799 \\
+\hline
+Battery SOH (percentage points)$^{\mathrm{b}}$ & Linear Regression & 2.62 & 5.17 & 0.950 \\
+\hline
+Battery RUL (cycles)$^{\mathrm{c}}$ & Random Forest & 9.36 & 12.32 & 0.862 \\
+\hline
+Landing gear RUL (percentage points)$^{\mathrm{d}}$ & Random Forest & 1.37 & 2.63 & 0.992 \\
+\hline
+\multicolumn{5}{p{3.05in}}{$^{\mathrm{a}}$Tested on the official FD001 test set of 100 engines that the model never saw during training. RUL values above 125 cycles were capped at 125.} \\
+\multicolumn{5}{p{3.05in}}{$^{\mathrm{b}}$SOH is the current capacity of a cell as a percentage of its capacity when new, so the errors are in percentage points.} \\
+\multicolumn{5}{p{3.05in}}{$^{\mathrm{c}}$Each cell was scored by a model trained on all the other cells, so every result is on a cell the model never saw.} \\
+\multicolumn{5}{p{3.05in}}{$^{\mathrm{d}}$Five fold validation: each fold tests on aircraft mass regimes the model was not trained on. RUL runs from 100 percent when new to 0 percent at failure, so the errors are in percentage points.}
+\end{tabular}
+\label{tab_regression}
+\end{center}
+\end{table}
+
+We also checked the direction in which the engine model errs close to failure, because a late prediction, one where the model says more life remains than is true, is the riskier kind for a maintenance planner. Among engines close to failure, the final model predicts late for 72.42 percent before any calibration. On an earlier version of the engine model, a safety oriented calibration that lowers predictions in the low RUL region reduced the corresponding share from roughly 72 percent to 35.3 percent. The calibration trades a few extra early predictions, which cost at most an inspection brought forward, for far fewer late ones, which could leave an engine in service past its safe life. Applying the same calibration to the final model is a direct next step, together with reporting MAE separately for the RUL regions above 50, between 20 and 50, and at or below 20 cycles, since the region nearest failure is the one that drives the maintenance decision.
+
+\subsection{Battery SOH and RUL}
+For state of health, linear regression on the discharge curve features gives an MAE of 2.62 percentage points, an RMSE of 5.17 percentage points and an $R^2$ of 0.950, as Table~\ref{tab_regression} shows. The estimated health of a cell is therefore typically within about 3 percentage points of its true value. The RMSE is close to twice the MAE, which means a few cycles carry larger errors. The most likely place for these is around capacity regeneration events, where the measured capacity of a cell briefly rises after a rest before the downward trend resumes, so a feature set built from the discharge curve reads a temporary recovery as a change in health. For remaining useful life, a Random Forest evaluated leave one battery out gives an MAE of 9.36 cycles, an RMSE of 12.32 cycles and an $R^2$ of 0.862. Every reported cell was left out of training when it was scored, so these figures show how the model performs on a cell it has never seen, which is the situation an operator faces when a new battery is fitted.
+
+\subsection{Hydraulic Condition Classification}
+Table~\ref{tab_hydraulic} gives the results under condition grouped validation, in which cycles that share the same combination of condition settings were kept together on one side of the split. Cooler condition is classified with 96.1 percent accuracy by logistic regression, and internal pump leakage with 95.5 percent by extremely randomised trees. These two targets have the clearest signatures in the per cycle features: the cooler shows up directly in the temperature and cooling efficiency channels, and pump leakage in the flow and pressure channels. Valve condition reaches 83.99 percent and accumulator pressure 88.82 percent. These two are harder for our models because their signatures are subtler, because they depend on whether the rig had settled during the cycle, and because grouped validation asks the model to recognise them under condition combinations it did not train on. For these two targets the confidence rule of Section~\ref{sec_models} is applied. When the model is sure, its prediction is accepted, and accuracy on those accepted predictions rises to 91.86 percent for the valve and 92.33 percent for the accumulator. Cycles the model is unsure about are flagged for review, and the dashboard shows that flag, so a maintainer always knows how much confidence stands behind a class. The results also suggest passing the stable flag from the dataset into the decision layer as an extra input, so that an unsettled cycle is treated with extra caution.
+\begin{table}[htbp]
+\caption{Hydraulic Condition Classification Results (Condition Grouped Validation)}
+\begin{center}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{|p{0.9in}|p{0.7in}|c|p{0.9in}|}
+\hline
+\textbf{Target}$^{\mathrm{a}}$ & \textbf{Model} & \textbf{Acc. (\%)}$^{\mathrm{b}}$ & \textbf{Additional} \\
+\hline
+Cooler condition & Logistic Regression & 96.1 & \\
+\hline
+Valve condition & Logistic Regression & 83.99 & 91.86 on accepted predictions$^{\mathrm{c}}$ \\
+\hline
+Internal pump leakage & Extra Trees & 95.5 & \\
+\hline
+Hydraulic accumulator pressure & Random Forest & 88.82 & 92.33 on accepted predictions$^{\mathrm{c}}$ \\
+\hline
+\multicolumn{4}{p{3.0in}}{$^{\mathrm{a}}$The four targets are named exactly as in the UCI dataset documentation.} \\
+\multicolumn{4}{p{3.0in}}{$^{\mathrm{b}}$Percentage of all 2,205 cycles classified correctly, stable and unstable cycles included. Cycles with the same condition settings were kept together on one side of the train and test split.} \\
+\multicolumn{4}{p{3.0in}}{$^{\mathrm{c}}$Percentage correct among the predictions the model was confident enough to accept (class probability of at least 0.8889 for the valve and 0.5781 for the accumulator, see Section~\ref{sec_models}). The other cycles are flagged for review.}
+\end{tabular}
+\label{tab_hydraulic}
+\end{center}
+\end{table}
+
+\subsection{Landing Gear Fault and RUL}
+Under five fold validation that holds out complete aircraft mass regimes, a Random Forest classifies the four shock strut conditions with 95.07 percent accuracy, 95.36 percent balanced accuracy and a macro F1 of 0.950, as Table~\ref{tab_lg} lists. Accuracy and balanced accuracy are almost equal, which means all four classes are recognised about equally well and the model is not simply reporting the normal class most of the time. A second Random Forest predicts the RUL percentage with an MAE of 1.37 percentage points, an RMSE of 2.63 percentage points and an $R^2$ of 0.992, as Table~\ref{tab_regression} shows. These scores are the highest of the five modules, and the reason is the data source: the digital twin generates each landing from known physical rules for stiffness, damping and each fault, so the signal is clean and the fault signatures are consistent from one landing to the next. The results confirm that the pipeline handles landing gear data end to end, from the raw landing features to a fault class, a remaining life estimate and a maintenance decision, and the module also gives a clean reference against which operational landing gear data can be compared when they become available.
+
+\begin{table}[htbp]
+\caption{Landing Gear Fault Classification and Fuel Anomaly Detection Results}
+\begin{center}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{|p{0.85in}|p{0.7in}|p{1.45in}|}
+\hline
+\textbf{Task} & \textbf{Model} & \textbf{Result} \\
+\hline
+Landing gear fault, four classes$^{\mathrm{a}}$ & Random Forest & Accuracy 95.07\%, balanced accuracy 95.36\%, macro F1 0.950 \\
+\hline
+Fuel anomaly, normal against abnormal$^{\mathrm{b}}$ & Extra Trees & Balanced accuracy 60.89\%, detection rate 93.13\%, false alarm rate 71.35\% \\
+\hline
+\multicolumn{3}{p{3.0in}}{$^{\mathrm{a}}$The four classes are normal, nitrogen gas leak, worn seal and early structural degradation. Five fold validation: each fold tests on aircraft mass regimes the model was not trained on.} \\
+\multicolumn{3}{p{3.0in}}{$^{\mathrm{b}}$The dataset has one normal and four abnormal scenarios, 855 rows in total. In each test fold, one whole abnormal scenario and a continuous stretch of the normal scenario were kept out of training and used only for testing.}
+\end{tabular}
+\label{tab_lg}
+\end{center}
+\end{table}
+
+\subsection{Fuel Anomaly Detection}
+The fuel task is binary anomaly detection: each row is classified as normal or abnormal from the 32 causal features. Extra Trees was selected after comparison with a Random Forest baseline. With whole scenario files held out, it detects 93.13 percent of abnormal rows and flags 71.35 percent of normal rows, which gives a balanced accuracy of 60.89 percent, as listed in Table~\ref{tab_lg}. Read as a screening tool, the module does its main job well: it catches almost every abnormal scenario, which is what matters most for a first alert. The high false alarm rate has a clear cause. The dataset contains one normal scenario among 855 rows, so the model has seen only a narrow picture of normal operation, and any normal row that departs from that single scenario looks abnormal to it. The decision layer therefore uses the fuel output to raise attention for inspection rather than to confirm a fault. More normal operation data are the most direct route to fewer false alarms, and the pipeline can retrain as soon as such data are available.
+
+\subsection{Discussion}
+Four observations follow from our results.
+
+First, the simplest model won in three of the tasks. Linear regression gave the best SOH estimate, with an $R^2$ of 0.950, and logistic regression gave the best cooler and valve classification. In each case the per cycle summary features already track the target or separate the classes well, so a larger model had nothing further to learn, and the simpler model is also the easier one to explain to a maintenance engineer.
+
+Second, grouped validation produced numbers we can trust. Every engine score comes from 100 engines the model never saw, every battery score from a cell left out of training, every hydraulic score from condition combinations held together on one side of the split, every fuel score from a scenario file held out whole, and every landing gear score from an aircraft mass regime held out whole. The scores are therefore estimates of how each module will behave on a new aircraft unit, not on a unit it has already seen. The fuel module's balanced accuracy of 60.89 percent is a case in point: a random split would have mixed rows from the same scenario into training and testing, and the grouped split is what exposes how narrow the normal data really are.
+
+Third, the engine calibration study shows that the direction of an error matters as much as its size once a prediction feeds a decision. Reducing late predictions near failure from roughly 72 percent to 35.3 percent, as the study did on an earlier model version, moves some engines into an earlier recommendation band without any change to the model itself, and the final model's uncalibrated rate of 72.42 percent shows the same headroom. The hydraulic confidence rule makes the same point from the other side: withholding a prediction the model is unsure of raised accuracy on the accepted valve and accumulator cycles to above 91 percent.
+
+Fourth, the five modules span a wide range of aircraft data, and the same pipeline serves all of them. The landing gear twin gives a clean signal and near perfect scores, the fuel dataset gives a sensitive screening detector, and the engine, battery and hydraulic sets sit between. One validation step, one feature pipeline, one health scale, one decision layer and one aircraft maintenance dashboard handle all five, which is the central result of this paper.
+
+\section{Conclusion and Future Work}
+This work asked whether predictive maintenance for aircraft can be taken beyond the engine, where almost all published work sits, and applied to the other systems that keep an aircraft flying. We answered it by writing one pipeline of validation, preprocessing and causal feature engineering that five public datasets pass through, training the model best suited to each subsystem, and mapping every output onto one common health state and from there onto a Maintenance Recommendation and a Maintenance Priority, which the planner sees on a dashboard fed by simulated real time telemetry. The results support the approach on every subsystem: a mean absolute error of 13.80 flight cycles for engine RUL, 2.62 percentage points for battery state of health and 9.36 cycles for battery RUL, hydraulic accuracies between 83.99 and 96.1 percent, a landing gear fault accuracy of 95.07 percent with an RUL error of 1.37 percentage points, and a 93.13 percent detection rate for fuel anomalies, each measured on an aircraft unit the model had never seen.
+
+The framework is built on five public datasets that differ in origin: a turbofan simulation, laboratory battery cells, a hydraulic test rig, a compact fuel distribution model and a landing gear digital twin. Bringing such varied sources into one pipeline is the strength of the approach, and it also defines the natural next step, which is validation on operator data. Real time behaviour is demonstrated with simulated telemetry, which lets the pipeline be exercised end to end and degradation scenarios be replayed on demand. Each module is therefore ready to be connected to aircraft fleet data as they become available, and the decision thresholds can be tuned for a given operator without changing the architecture. Avionics can join the framework when a public dataset of component health becomes available. Beyond the project, the release of further non engine aircraft datasets by the community would be the fastest route to a genuinely whole aircraft predictive maintenance system, and the framework presented here is ready to take them in.
+
+\begin{thebibliography}{00}
+\bibitem{b1} I. Stanton, K. Munir, A. Ikram, and M. El-Bakry, ``Predictive maintenance analytics and implementation for aircraft: Challenges and opportunities,'' Systems Engineering, vol. 26, no. 2, pp. 216--237, 2023, doi: 10.1002/sys.21651.
+\bibitem{b2} M. J. Scott, W. J. C. Verhagen, M. T. Bieber, and P. Marzocca, ``A systematic literature review of predictive maintenance for defence fixed-wing aircraft sustainment and operations,'' Sensors, vol. 22, no. 18, art. 7070, 2022, doi: 10.3390/s22187070.
+\bibitem{b3} A. K. S. Jardine, D. Lin, and D. Banjevic, ``A review on machinery diagnostics and prognostics implementing condition-based maintenance,'' Mechanical Systems and Signal Processing, vol. 20, no. 7, pp. 1483--1510, 2006, doi: 10.1016/j.ymssp.2005.09.012.
+\bibitem{b4} Y. Lei, N. Li, L. Guo, N. Li, T. Yan, and J. Lin, ``Machinery health prognostics: A systematic review from data acquisition to RUL prediction,'' Mechanical Systems and Signal Processing, vol. 104, pp. 799--834, 2018, doi: 10.1016/j.ymssp.2017.11.016.
+\bibitem{b5} M. Esperon-Miguez, P. John, and I. K. Jennions, ``A review of integrated vehicle health management tools for legacy platforms: Challenges and opportunities,'' Progress in Aerospace Sciences, vol. 56, pp. 19--34, 2013, doi: 10.1016/j.paerosci.2012.04.003.
+\bibitem{b6} M. Gerdes, D. Scholz, and D. Galar, ``Effects of condition-based maintenance on costs caused by unscheduled maintenance of aircraft,'' Journal of Quality in Maintenance Engineering, vol. 22, no. 4, pp. 394--417, 2016, doi: 10.1108/JQME-12-2015-0062.
+\bibitem{b7} K. Khan, M. Sohaib, A. Rashid, S. Ali, H. Akbar, A. Basit, and T. Ahmad, ``Recent trends and challenges in predictive maintenance of aircraft's engine and hydraulic system,'' Journal of the Brazilian Society of Mechanical Sciences and Engineering, vol. 43, art. 403, 2021, doi: 10.1007/s40430-021-03121-2.
+\bibitem{b8} A. Saxena, K. Goebel, D. Simon, and N. Eklund, ``Damage propagation modeling for aircraft engine run-to-failure simulation,'' in Proc. Int. Conf. Prognostics and Health Management (PHM), Denver, CO, USA, 2008, pp. 1--9, doi: 10.1109/PHM.2008.4711414.
+\bibitem{b9} A. Saxena and K. Goebel, ``Turbofan engine degradation simulation data set,'' NASA Prognostics Data Repository, NASA Ames Research Center, Moffett Field, CA, USA, 2008. [Online]. Available: \url{https://www.nasa.gov/intelligent-systems-division/discovery-and-systems-health/pcoe/pcoe-data-set-repository/}
+\bibitem{b10} F. O. Heimes, ``Recurrent neural networks for remaining useful life estimation,'' in Proc. Int. Conf. Prognostics and Health Management (PHM), Denver, CO, USA, 2008, pp. 1--6, doi: 10.1109/PHM.2008.4711422.
+\bibitem{b11} G. S. Babu, P. Zhao, and X.-L. Li, ``Deep convolutional neural network based regression approach for estimation of remaining useful life,'' in Database Systems for Advanced Applications (DASFAA 2016), Lecture Notes in Computer Science, vol. 9642. Cham, Switzerland: Springer, 2016, pp. 214--228, doi: 10.1007/978-3-319-32025-0\_14.
+\bibitem{b12} S. Zheng, K. Ristovski, A. Farahat, and C. Gupta, ``Long short-term memory network for remaining useful life estimation,'' in Proc. IEEE Int. Conf. Prognostics and Health Management (ICPHM), Dallas, TX, USA, 2017, pp. 88--95, doi: 10.1109/ICPHM.2017.7998311.
+\bibitem{b13} Y. Alomari, M. And\'o, and M. L. Baptista, ``Advancing aircraft engine RUL predictions: An interpretable integrated approach of feature engineering and aggregated feature importance,'' Scientific Reports, vol. 13, art. 13466, 2023, doi: 10.1038/s41598-023-40315-1.
+\bibitem{b14} A. Saxena, J. Celaya, B. Saha, S. Saha, and K. Goebel, ``Metrics for offline evaluation of prognostic performance,'' International Journal of Prognostics and Health Management, vol. 1, no. 1, 2010, doi: 10.36001/ijphm.2010.v1i1.1336.
+\bibitem{b15} O. Fink, Q. Wang, M. Svens\'en, P. Dersin, W.-J. Lee, and M. Ducoffe, ``Potential, challenges and future directions for deep learning in prognostics and health management applications,'' Engineering Applications of Artificial Intelligence, vol. 92, art. 103678, 2020, doi: 10.1016/j.engappai.2020.103678.
+\bibitem{b16} B. Saha and K. Goebel, ``Battery data set,'' NASA Prognostics Data Repository, NASA Ames Research Center, Moffett Field, CA, USA, 2007. [Online]. Available: \url{https://www.nasa.gov/intelligent-systems-division/discovery-and-systems-health/pcoe/pcoe-data-set-repository/}
+\bibitem{b17} B. Saha, K. Goebel, S. Poll, and J. Christophersen, ``Prognostics methods for battery health monitoring using a Bayesian framework,'' IEEE Transactions on Instrumentation and Measurement, vol. 58, no. 2, pp. 291--296, 2009, doi: 10.1109/TIM.2008.2005965.
+\bibitem{b18} X. Li, C. Yuan, X. Li, and Z. Wang, ``State of health estimation for Li-ion battery using incremental capacity analysis and Gaussian process regression,'' Energy, vol. 190, art. 116467, 2020, doi: 10.1016/j.energy.2019.116467.
+\bibitem{b19} L. Ren, L. Zhao, S. Hong, S. Zhao, H. Wang, and L. Zhang, ``Remaining useful life prediction for lithium-ion battery: A deep learning approach,'' IEEE Access, vol. 6, pp. 50587--50598, 2018, doi: 10.1109/ACCESS.2018.2858856.
+\bibitem{b20} D. Swain, M. Kumar, A. Nour, K. Patel, A. Bhatt, B. Acharya, and A. Bostani, ``Remaining useful life predictor for EV batteries using machine learning,'' IEEE Access, vol. 12, pp. 134418--134426, 2024, doi: 10.1109/ACCESS.2024.3461802.
+\bibitem{b21} L. Mbagaya, K. Reddy, and A. Botes, ``Machine learning techniques for battery state of health prediction: A comparative review,'' World Electric Vehicle Journal, vol. 16, no. 11, art. 594, 2025, doi: 10.3390/wevj16110594.
+\bibitem{b22} K. Goebel, G. Gorospe, C. Kulkarni, J. Schumann, C. C. Quach, and E. Hogge, ``Health monitoring and prognostics for more electric aircrafts,'' NASA Technical Reports Server, Doc. ID 20180007743, 2018. [Online]. Available: \url{https://ntrs.nasa.gov/citations/20180007743}
+\bibitem{b23} C. S. Kulkarni, I. Roychoudhury, and J. Schumann, ``On-board battery monitoring and prognostics for electric-propulsion aircraft,'' in Proc. AIAA/IEEE Electric Aircraft Technologies Symposium (EATS), Cincinnati, OH, USA, 2018, doi: 10.2514/6.2018-5034.
+\bibitem{b24} N. M. Mohamud, S. M. Ayob, S. M. Saimon, A. M. Nahhas, Z. A. Arfeen, M. I. Masud, and M. Aman, ``Lithium-ion battery state of health prediction using a hybrid BiLSTM-random forest framework,'' Batteries, vol. 12, no. 6, art. 210, 2026, doi: 10.3390/batteries12060210.
+\bibitem{b25} N. Helwig, E. Pignanelli, and A. Sch\"utze, ``Condition monitoring of hydraulic systems,'' UCI Machine Learning Repository, dataset 447, 2018, doi: 10.24432/C5CW21. [Online]. Available: \url{https://archive.ics.uci.edu/dataset/447/condition+monitoring+of+hydraulic+systems}
+\bibitem{b26} N. Helwig, E. Pignanelli, and A. Sch\"utze, ``Condition monitoring of a complex hydraulic system using multivariate statistics,'' in Proc. IEEE Int. Instrumentation and Measurement Technology Conf. (I2MTC), Pisa, Italy, 2015, pp. 210--215, doi: 10.1109/I2MTC.2015.7151267.
+\bibitem{b27} T. Schneider, N. Helwig, and A. Sch\"utze, ``Automatic feature extraction and selection for classification of cyclical time series data,'' tm - Technisches Messen, vol. 84, no. 3, pp. 198--206, 2017, doi: 10.1515/teme-2016-0072.
+\bibitem{b28} A. Alenany, A. M. Helmi, and B. M. Nasef, ``Comprehensive analysis for sensor-based hydraulic system condition monitoring,'' International Journal of Advanced Computer Science and Applications, vol. 12, no. 6, pp. 133--140, 2021, doi: 10.14569/IJACSA.2021.0120615.
+\bibitem{b29} C. K\"onig and A. M. Helmi, ``Sensitivity analysis of sensors in a hydraulic condition monitoring system using CNN models,'' Sensors, vol. 20, no. 11, art. 3307, 2020, doi: 10.3390/s20113307.
+\bibitem{b30} D. Kim and T.-Y. Heo, ``Anomaly detection with feature extraction based on machine learning using hydraulic system IoT sensor data,'' Sensors, vol. 22, no. 7, art. 2479, 2022, doi: 10.3390/s22072479.
+\bibitem{b31} K. Shen and D. Zhao, ``Fault diagnosis for aircraft hydraulic systems via one-dimensional multichannel convolution neural network,'' Actuators, vol. 11, no. 7, art. 182, 2022, doi: 10.3390/act11070182.
+\bibitem{b32} M. M. R. Shamim, M. Nuruzzaman, Z. Ferdus, M. R. Ahmed, A. N. Anward, M. Tooneer, J. U. Khan, and K. Hossen, ``Leakage-robust evaluation and data-scale sensitivity of attention-enhanced multi-task learning for joint fault diagnosis and remaining useful life estimation,'' arXiv preprint arXiv:2607.16493, 2026.
+\bibitem{b33} K. Aslansefat, Y. Gheraibia, S. Kabir, I. Sorokos, and Y. Papadopoulos, ``Aircraft fuel distribution system,'' IEEE DataPort, 2020, and Kaggle, 2021. [Online]. Available: \url{https://www.kaggle.com/datasets/kooaslansefat/aircraft-fuel-distribution-system}
+\bibitem{b34} Y. Gheraibia, S. Kabir, K. Aslansefat, I. Sorokos, and Y. Papadopoulos, ``Safety+AI: A novel approach to update safety models using artificial intelligence,'' IEEE Access, vol. 7, pp. 135855--135869, 2019, doi: 10.1109/ACCESS.2019.2941566.
+\bibitem{b35} Z. Skaf, H. Abdulmouti, S. Alblooshi, A. Alkaabi, and R. Almarzooqi, ``Fault detection for aircraft fuel system with machine learning techniques,'' in Proc. Advances in Science and Engineering Technology Int. Conf. (ASET), Dubai, UAE, 2023, doi: 10.1109/ASET56582.2023.10180668.
+\bibitem{b36} O. Niculita, P. Irving, and I. K. Jennions, ``Use of COTS functional analysis software as an IVHM design tool for detection and isolation of UAV fuel system faults,'' in Proc. Annual Conf. PHM Society, 2012. [Online]. Available: \url{https://papers.phmsociety.org/index.php/phmconf/article/view/2116}
+\bibitem{b37} O. Niculita, Z. Skaf, and I. K. Jennions, ``The application of Bayesian change point detection in UAV fuel systems,'' Procedia CIRP, vol. 22, pp. 115--121, 2014, doi: 10.1016/j.procir.2014.07.119.
+\bibitem{b38} V. S. Jigajinni, ``Health monitoring of an aircraft fuel system using artificial intelligence techniques,'' in Fuzzy Systems: Theory and Applications, C. Volo\c{s}encu, Ed. London, UK: IntechOpen, 2021, doi: 10.5772/intechopen.99665.
+\bibitem{b39} M. B. Sani, ``Aircraft landing gear digital twin dataset: PdM/SHM,'' Kaggle, 2026. [Online]. Available: \url{https://www.kaggle.com/datasets/mohammedbellosani/aircraft-landing-gear-digital-twin-datasetpdmshm}
+\bibitem{b40} M. B. Sani and L. O. Uhiah, ``Physics-informed digital twin for predictive maintenance of aircraft landing gear systems: An open-source cyber-physical approach,'' SSRN preprint, 2026. [Online]. Available: \url{https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6080365}
+\bibitem{b41} L. Pinello, O. Hassan, M. Giglio, and C. Sbarufatti, ``Preliminary nose landing gear digital twin for damage detection,'' Aerospace, vol. 11, no. 3, art. 222, 2024, doi: 10.3390/aerospace11030222.
+\bibitem{b42} C. Li, W. Chen, and W. Qin, ``A deep learning on-board health monitoring method for landing gear shock-absorbing systems,'' Sensors, vol. 25, no. 9, art. 2767, 2025, doi: 10.3390/s25092767.
+\bibitem{b43} J. Chen, Q. Xu, Y. Guo, and R. Chen, ``Aircraft landing gear retraction/extension system fault diagnosis with 1-D dilated convolutional neural network,'' Sensors, vol. 22, no. 4, art. 1367, 2022, doi: 10.3390/s22041367.
+\bibitem{b44} K. N. Kadripathi, D. Ignatyev, A. Tsourdos, and A. Perrusquia, ``Advancing fault diagnosis in aircraft landing gear: An innovative two-tier machine learning approach with intelligent sensor data management,'' in Proc. AIAA SciTech Forum, Orlando, FL, USA, 2024, AIAA 2024-0759, doi: 10.2514/6.2024-0759.
+\bibitem{b45} H. El Mir and S. Perinpanayagam, ``Certification of machine learning algorithms for safe-life assessment of landing gear,'' Frontiers in Astronomy and Space Sciences, vol. 9, art. 896877, 2022, doi: 10.3389/fspas.2022.896877.
+\bibitem{b46} E. Balaban, A. Saxena, K. Goebel, C. S. Byington, M. Watson, S. Bharadwaj, and M. Smith, ``Experimental data collection and modeling for nominal and fault conditions on electro-mechanical actuators,'' in Proc. Annual Conf. PHM Society, vol. 1, no. 1, 2009. [Online]. Available: \url{https://papers.phmsociety.org/index.php/phmconf/article/view/1530}
+\bibitem{b47} E. Balaban, P. Bansal, P. Stoelting, A. Saxena, K. F. Goebel, and S. Curran, ``A diagnostic approach for electro-mechanical actuators in aerospace systems,'' in Proc. IEEE Aerospace Conf., Big Sky, MT, USA, 2009, pp. 1--13, doi: 10.1109/AERO.2009.4839661.
+\bibitem{b48} N. B. Niraula, H. Nguyen, J. Kansal, S. Hafner, L. Branscum, E. Brown, and R. Garcia, ``Discovering depressurization events in service difficulty reports using machine learning,'' in Proc. IEEE Int. Conf. Prognostics and Health Management (ICPHM), Montreal, QC, Canada, 2023. [Online]. Available: \url{https://ieeexplore.ieee.org/document/10194079}
+\bibitem{b49} B. Matthews, ``Sample flight data: Curated 4 class anomaly detection data set,'' NASA DASHlink, NASA Ames Research Center. [Online]. Available: \url{https://c3.ndc.nasa.gov/dashlink/projects/85/resources/}
+\bibitem{b50} O. Bougacha, C. Varnier, and N. Zerhouni, ``A review of post-prognostics decision-making in prognostics and health management,'' International Journal of Prognostics and Health Management, vol. 11, no. 2, 2020. [Online]. Available: \url{https://papers.phmsociety.org/index.php/ijphm/article/view/2928}
+\bibitem{b51} A. Hartwell, F. Montana, W. Jacobs, V. Kadirkamanathan, N. Ameri, and A. R. Mills, ``Distributed digital twins for health monitoring: Resource constrained aero-engine fleet management,'' The Aeronautical Journal, vol. 128, no. 1325, pp. 1556--1575, 2024, doi: 10.1017/aer.2024.23.
+\bibitem{b52} S. Kaufman, S. Rosset, C. Perlich, and O. Stitelman, ``Leakage in data mining: Formulation, detection, and avoidance,'' ACM Transactions on Knowledge Discovery from Data, vol. 6, no. 4, art. 15, 2012, doi: 10.1145/2382577.2382579.
+\bibitem{b53} C. Bergmeir and J. M. Ben\'itez, ``On the use of cross-validation for time series predictor evaluation,'' Information Sciences, vol. 191, pp. 192--213, 2012, doi: 10.1016/j.ins.2011.12.028.
+\bibitem{b54} L. Breiman, ``Random forests,'' Machine Learning, vol. 45, no. 1, pp. 5--32, 2001, doi: 10.1023/A:1010933404324.
+\bibitem{b55} P. Geurts, D. Ernst, and L. Wehenkel, ``Extremely randomized trees,'' Machine Learning, vol. 63, no. 1, pp. 3--42, 2006, doi: 10.1007/s10994-006-6226-1.
+\bibitem{b56} M. Sokolova and G. Lapalme, ``A systematic analysis of performance measures for classification tasks,'' Information Processing and Management, vol. 45, no. 4, pp. 427--437, 2009, doi: 10.1016/j.ipm.2009.03.002.
+\bibitem{b57} J. Lee, M. Mitici, H. A. P. Blom, P. Bieber, and F. Freeman, ``Analyzing emerging challenges for data-driven predictive aircraft maintenance using agent-based modeling and hazard identification,'' Aerospace, vol. 10, no. 2, art. 186, 2023, doi: 10.3390/aerospace10020186.
+\end{thebibliography}
+
+\end{document}
