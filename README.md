@@ -21,18 +21,8 @@ In PowerShell, from the repository root, run:
 
 In a second terminal, run npm install followed by npm run dev.
 Open the local URL printed by Vite. FastAPI's interactive API reference is at
-http://127.0.0.1:8000/docs.
-
-The Vite app opens the fleet dashboard (`aircraft-maintenance-dashboard-previous.jsx`):
-Fleet and Maintenance views run on a simulated fleet, and the Data Upload tab
-sends a CSV/JSON file for one subsystem to the live backend's input-check and
-prediction endpoints. To open the backend-connected model workspace instead,
-change the import in `frontend-src/main.jsx` to
-`../aircraft-maintenance-dashboard-enhanced.jsx`.
-
-A second, TypeScript frontend (Next.js App Router) lives in `frontend/`. Run it
-with `cd frontend`, `npm install`, `npm run dev`, then open http://127.0.0.1:3000.
-It proxies `/api` to the same FastAPI backend; see [frontend/README.md](frontend/README.md).
+http://127.0.0.1:8000/docs. The model workspace uses the live backend; its
+separate visual demo is explicitly simulated.
 
 Run automated tests and build the frontend with:
 
@@ -56,9 +46,7 @@ See [CI workflow details](docs/CI_CD.md).
 ## Project contents
 
 - src/ - data preparation, model training/evaluation, and FastAPI service.
-- frontend-src/ - React (Vite) model workspace and the dashboard's Data Upload section.
-- frontend/ - Next.js 16 + TypeScript dashboard (fleet, analytics, maintenance, models).
-- docs/final-submission/ - project report, presentations, research paper, synopsis.
+- frontend-src/ - backend-connected React model workspace.
 - data/raw/ and data/processed/ - source and derived datasets.
 - models/releases/ - fingerprinted research model snapshots.
 - docs/ - dataset dictionaries, API contracts, architecture, and demo.
@@ -88,4 +76,3 @@ any metric.
 - [Future telemetry and monitoring prerequisites](docs/TELEMETRY_MONITORING_PLAN.md)
 - [Reproducibility and verification](docs/REPRODUCIBILITY_AND_DEMO.md)
 - [Project-review slides](docs/PROJECT_REVIEW_PRESENTATION.md)
-- [Final submission: report, presentations, paper, synopsis](docs/final-submission/README.md)
