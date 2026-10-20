@@ -8,7 +8,9 @@ import {
   Zap, Fuel, Wrench, ChevronRight, ChevronLeft, RefreshCw, Wifi,
   WifiOff, LayoutGrid, ClipboardList, Circle, ArrowUpRight, ArrowDownRight,
   Minus, Bell, Search, ShieldCheck, Clock3, BrainCircuit, Sparkles, Target, ChevronUp, ChevronDown, Crosshair, GaugeCircle, PlaneTakeoff, Database, RadioTower, CircleDot, Timer, Cpu, ActivitySquare, Layers3, Route, ShieldAlert, ZapIcon, BarChart3, SlidersHorizontal, Eye, EyeOff, Maximize2, X,
+  UploadCloud,
 } from "lucide-react";
+import DataUploadCenter from "./frontend-src/DataUploadCenter.jsx";
 
 /* ============================================================================
    DATA LAYER
@@ -257,23 +259,26 @@ function RiskBadge({ risk }) {
 function HealthGauge({ value, size = 88 }) {
   const color = healthColor(value);
   const data = [{ value }];
+  // Text scales with the gauge so the label always sits inside the ring.
+  const valueSize = Math.round(size * 0.25);
+  const labelSize = Math.max(7, Math.round(size * 0.1));
   return (
     <div style={{ width: size, height: size }} className="relative shrink-0">
       <ResponsiveContainer width="100%" height="100%">
         <RadialBarChart
-          innerRadius="70%"
+          innerRadius="80%"
           outerRadius="100%"
           data={data}
           startAngle={90}
           endAngle={-270}
         >
           <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
-          <RadialBar dataKey="value" cornerRadius={20} fill={color} background={{ fill: "#1e293b" }} />
+          <RadialBar dataKey="value" cornerRadius={20} fill={color} background={{ fill: "#1e293b" }} isAnimationActive={false} />
         </RadialBarChart>
       </ResponsiveContainer>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-mono text-lg font-bold text-slate-100">{value}</span>
-        <span className="text-[9px] uppercase tracking-wider text-slate-500">health</span>
+      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-[3px]">
+        <span className="font-mono font-bold leading-none text-slate-100" style={{ fontSize: valueSize }}>{value}</span>
+        <span className="font-semibold uppercase leading-none tracking-[0.08em] text-slate-400" style={{ fontSize: labelSize }}>health</span>
       </div>
     </div>
   );
@@ -327,6 +332,14 @@ function MetricTile({ label, value, sub, icon: Icon, tone = "cyan", progress }) 
     red: "text-red-300 bg-red-400/10 border-red-400/20",
     violet: "text-violet-300 bg-violet-400/10 border-violet-400/20",
   };
+  // Solid fills for the progress bar; the 10% chip tints above vanish on the dark track.
+  const bars = {
+    cyan: "bg-cyan-400",
+    emerald: "bg-emerald-400",
+    amber: "bg-amber-400",
+    red: "bg-red-400",
+    violet: "bg-violet-400",
+  };
   return (
     <Card className="relative overflow-hidden">
       <div className={`absolute -right-6 -top-6 h-20 w-20 rounded-full blur-2xl opacity-20 ${tones[tone].split(" ")[1]}`} />
@@ -339,8 +352,8 @@ function MetricTile({ label, value, sub, icon: Icon, tone = "cyan", progress }) 
         <div className={`rounded-lg border p-2 ${tones[tone]}`}><Icon className="h-4 w-4" /></div>
       </div>
       {typeof progress === "number" && (
-        <div className="relative mt-3 h-1 overflow-hidden rounded-full bg-slate-800">
-          <div className={`h-full rounded-full ${tones[tone].split(" ")[1].replace("bg-", "bg-")}`} style={{ width: `${clamp(progress,0,100)}%` }} />
+        <div className="relative mt-3 h-1.5 overflow-hidden rounded-full bg-slate-800">
+          <div className={`h-full rounded-full transition-[width] duration-500 ${bars[tone]}`} style={{ width: `${clamp(progress,0,100)}%` }} />
         </div>
       )}
     </Card>
@@ -431,6 +444,14 @@ function FleetDashboard({ fleet, onSelectAircraft, connected }) {
   const highRiskComponents = allComponents.filter(c => c.risk === "High").length;
   const readiness = Math.round(((counts.healthy + counts.warning * 0.65) / Math.max(counts.total, 1)) * 100);
 
+  const [query, setQuery] = useState("");
+  const searching = query.trim().length > 0;
+  const visibleFleet = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return fleet;
+    return fleet.filter((ac) => [ac.tail, ac.model, ac.id, ac.status].some((field) => String(field).toLowerCase().includes(q)));
+  }, [fleet, query]);
+
   const highestRisk = useMemo(() => [...fleet].sort((a, b) => a.overallHealth - b.overallHealth).slice(0, 5), [fleet]);
   const alerts = useMemo(() => {
     const list = [];
@@ -469,9 +490,54 @@ function FleetDashboard({ fleet, onSelectAircraft, connected }) {
           <FleetHealthMap fleet={fleet} onSelectAircraft={onSelectAircraft} />
           <PredictiveInsight fleet={fleet} />
           <div>
-            <SectionLabel icon={LayoutGrid}>Aircraft Fleet</SectionLabel>
+            <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-500">
+                <LayoutGrid className="h-3.5 w-3.5" />
+                Aircraft Fleet
+                <span className="font-mono text-[10px] font-medium normal-case tracking-normal text-slate-600">
+                  {searching ? `${visibleFleet.length} of ${fleet.length}${visibleFleet.length === 1 ? " · Enter to open" : ""}` : `${fleet.length} aircraft`}
+                </span>
+              </div>
+              <label className="relative block w-full sm:w-72">
+                <span className="sr-only">Search aircraft</span>
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && visibleFleet.length === 1) onSelectAircraft(visibleFleet[0].id);
+                    if (e.key === "Escape") setQuery("");
+                  }}
+                  placeholder="Search tail, model, ID or status"
+                  // index.css sets `input { font: inherit }` unlayered, which beats text-xs; size it inline.
+                  style={{ fontSize: 12, lineHeight: "16px" }}
+                  className="h-9 w-full rounded-lg border border-slate-800 bg-slate-900/70 pl-9 pr-8 text-slate-200 outline-none transition placeholder:text-slate-600 focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/20 [&::-webkit-search-cancel-button]:hidden"
+                />
+                {query && (
+                  <button
+                    type="button"
+                    onClick={() => setQuery("")}
+                    aria-label="Clear search"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-slate-500 transition hover:text-slate-200"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </label>
+            </div>
+            {visibleFleet.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-slate-800 bg-slate-900/40 px-4 py-8 text-center">
+                <Search className="mx-auto h-5 w-5 text-slate-600" />
+                <p className="mt-2 text-sm text-slate-300">No aircraft match “{query.trim()}”</p>
+                <p className="mt-1 text-xs text-slate-500">Try a tail number such as {fleet[0]?.tail}, a model such as Boeing, or a status such as Critical.</p>
+                <button type="button" onClick={() => setQuery("")} className="mt-3 text-xs font-semibold text-cyan-400 transition hover:text-cyan-300">
+                  Clear search
+                </button>
+              </div>
+            ) : (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {fleet.map((ac) => (
+              {visibleFleet.map((ac) => (
                 <Card key={ac.id} onClick={() => onSelectAircraft(ac.id)} className="group">
                   <div className="flex items-center gap-3">
                     <HealthGauge value={ac.overallHealth} size={64} />
@@ -492,6 +558,7 @@ function FleetDashboard({ fleet, onSelectAircraft, connected }) {
                 </Card>
               ))}
             </div>
+            )}
           </div>
         </div>
 
@@ -780,7 +847,7 @@ function MaintenanceCenter({ fleet, onSelectAircraft }) {
       ac.components.forEach((c) => {
         all.push({
           aircraftId: ac.id, tail: ac.tail, type: c.type, icon: c.icon,
-          rul: c.rul, risk: c.risk, recommendation: c.recommendation, priority: c.priority,
+          rul: c.rul, recommendation: c.recommendation, priority: c.priority,
         });
       });
     });
@@ -816,9 +883,8 @@ function MaintenanceCenter({ fleet, onSelectAircraft }) {
               <th className="px-4 py-3 font-medium">Aircraft</th>
               <th className="px-4 py-3 font-medium">Component</th>
               <th className="px-4 py-3 font-medium">RUL</th>
-              <th className="px-4 py-3 font-medium">Risk</th>
-              <th className="px-4 py-3 font-medium">Recommendation</th>
               <th className="px-4 py-3 font-medium">Priority</th>
+              <th className="px-4 py-3 font-medium">Recommendation</th>
             </tr>
           </thead>
           <tbody>
@@ -835,9 +901,8 @@ function MaintenanceCenter({ fleet, onSelectAircraft }) {
                   </span>
                 </td>
                 <td className="px-4 py-2.5 font-mono text-slate-300">{r.rul} cyc</td>
-                <td className="px-4 py-2.5"><RiskBadge risk={r.risk} /></td>
-                <td className="px-4 py-2.5 text-slate-400">{r.recommendation}</td>
                 <td className="px-4 py-2.5"><RiskBadge risk={r.priority} /></td>
+                <td className="px-4 py-2.5 text-slate-400">{r.recommendation}</td>
               </tr>
             ))}
           </tbody>
@@ -853,7 +918,7 @@ function MaintenanceCenter({ fleet, onSelectAircraft }) {
 
 export default function App() {
   const [fleet, setFleet] = useState(() => generateFleet());
-  const [view, setView] = useState("fleet"); // fleet | aircraft | component | maintenance
+  const [view, setView] = useState("fleet"); // fleet | aircraft | component | maintenance | upload
   const [selectedAircraftId, setSelectedAircraftId] = useState(null);
   const [selectedComponentType, setSelectedComponentType] = useState(null);
   const [connected, setConnected] = useState(true);
@@ -881,6 +946,7 @@ export default function App() {
   const navItems = [
     { key: "fleet", label: "Fleet", icon: LayoutGrid },
     { key: "maintenance", label: "Maintenance", icon: ClipboardList },
+    { key: "upload", label: "Data Upload", icon: UploadCloud },
   ];
 
   return (
@@ -967,6 +1033,10 @@ export default function App() {
         {view === "maintenance" && (
           <MaintenanceCenter fleet={fleet} onSelectAircraft={goAircraft} />
         )}
+        {/* Kept mounted so an uploaded file and its results survive tab switches. */}
+        <div hidden={view !== "upload"}>
+          <DataUploadCenter />
+        </div>
       </main>
 
       <footer className="mx-auto max-w-7xl px-4 pb-6 text-center text-[11px] text-slate-600 sm:px-6">
