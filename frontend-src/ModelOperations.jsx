@@ -257,8 +257,10 @@ function SummaryTile({ label, value, note, tone = 'slate' }) {
   return <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4"><p className="text-[10px] uppercase tracking-wider text-slate-500">{label}</p><p className={`mt-1 text-2xl font-bold ${palette}`}>{value}</p><p className="mt-1 text-[10px] leading-4 text-slate-500">{note}</p></div>;
 }
 
-function FleetOverview({ items, loading, refresh, downloadResults, history, historyLoading, historyError }) {
+function FleetOverview({ items, loading, refresh, downloadResults, history, historyLoading, historyError, onOutcomeSaved }) {
   const [assetFilter, setAssetFilter] = useState('');
+  const [savingOutcomeId, setSavingOutcomeId] = useState('');
+  const [outcomeError, setOutcomeError] = useState('');
   const ready = items.filter(item => item.result).length;
   const filteredHistory = history.filter(entry => !assetFilter.trim()
     || (entry.asset_id || '').toLowerCase().includes(assetFilter.trim().toLowerCase()));
@@ -306,9 +308,33 @@ function FleetOverview({ items, loading, refresh, downloadResults, history, hist
         return <article key={entry.id} className="grid gap-2 rounded-lg border border-slate-800 bg-slate-950/50 p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
           <div className="min-w-0"><div className="flex flex-wrap items-center gap-x-2 gap-y-1"><strong className="text-xs capitalize text-slate-100">{entry.component.replaceAll('-', ' ')}</strong><span className="text-[10px] text-slate-500">{dateText}</span></div>
             <p className="mt-1 text-xs text-slate-300">{entry.summary}</p><p className="mt-1 text-[10px] text-slate-500">{entry.asset_id ? `Asset ${entry.asset_id}` : 'Unassigned asset'} · {sourceText}</p></div>
-          <span className={`w-fit rounded-full border px-2.5 py-1 text-[10px] font-semibold ${entry.review_required ? 'border-amber-400/25 bg-amber-400/5 text-amber-200' : 'border-emerald-400/25 bg-emerald-400/5 text-emerald-200'}`}>{entry.review_required ? 'Review required' : 'Model checks passed'}</span>
+          <div className="flex flex-col items-start gap-2 sm:items-end">
+            <span className={`w-fit rounded-full border px-2.5 py-1 text-[10px] font-semibold ${entry.review_required ? 'border-amber-400/25 bg-amber-400/5 text-amber-200' : 'border-emerald-400/25 bg-emerald-400/5 text-emerald-200'}`}>{entry.review_required ? 'Review required' : 'Model checks passed'}</span>
+            <label className="flex items-center gap-2 text-[10px] text-slate-500">
+              <span>Inspection outcome</span>
+              <select aria-label={`Inspection outcome for ${entry.component} prediction`} value={entry.outcome_status || 'unreviewed'} disabled={savingOutcomeId === entry.id}
+                onChange={async event => {
+                  const outcome_status = event.target.value;
+                  setSavingOutcomeId(entry.id); setOutcomeError('');
+                  try {
+                    const updated = await getJson(`/api/prediction-history/${encodeURIComponent(entry.id)}/outcome`, {
+                      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ outcome_status }),
+                    });
+                    onOutcomeSaved(updated);
+                  } catch (error) { setOutcomeError(error.message || 'Could not save inspection outcome.'); }
+                  finally { setSavingOutcomeId(''); }
+                }}
+                className="rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-[10px] text-slate-200 disabled:opacity-50">
+                <option value="unreviewed" disabled>Not reviewed</option>
+                <option value="confirmed_fault">Confirmed fault</option>
+                <option value="no_fault_found">No fault found</option>
+                <option value="inconclusive">Inconclusive</option>
+              </select>
+            </label>
+          </div>
         </article>;
       })}</div>}
+      {outcomeError && <p className="mt-3 rounded-lg border border-rose-400/25 bg-rose-400/5 p-3 text-xs text-rose-100" role="alert">{outcomeError}</p>}
       <p className="mt-3 text-[10px] leading-4 text-slate-600">History stores result summaries and an input digest only; it does not store raw sensor values. “Model checks passed” is not maintenance clearance.</p>
     </section>
     <p className="text-[11px] leading-5 text-slate-500">To show actual fleet health here, the next integration needs aircraft IDs, assigned component records, timestamped telemetry/predictions, and validated condition limits. Model output alone is not operational clearance.</p>
@@ -394,6 +420,7 @@ export default function ModelOperationsView({ mode }) {
     return () => controller.abort();
   }, [refreshCount, isMaintenance]);
   const refresh = () => setRefreshCount(value => value + 1);
+  const saveOutcome = updated => setHistory(records => records.map(record => record.id === updated.id ? updated : record));
   const downloadResults = () => downloadSectionResults(
     isMaintenance ? 'maintenance' : 'fleet',
     isMaintenance ? 'challenge' : 'normal',
@@ -402,5 +429,5 @@ export default function ModelOperationsView({ mode }) {
   return isMaintenance
     ? <MaintenanceReview items={items} loading={loading} refresh={refresh} downloadResults={downloadResults} />
     : <FleetOverview items={items} loading={loading} refresh={refresh} downloadResults={downloadResults}
-      history={history} historyLoading={historyLoading} historyError={historyError} />;
+      history={history} historyLoading={historyLoading} historyError={historyError} onOutcomeSaved={saveOutcome} />;
 }

@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Literal
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import Field, field_validator
 
 from src.api.schemas import StrictModel
@@ -23,6 +23,7 @@ HISTORY_DB_PATH = Path(os.getenv(
 
 Component = Literal["engine", "battery", "hydraulic", "landing-gear", "fuel-system"]
 Source = Literal["dataset_example", "uploaded_file", "edited_input", "all_components_bundle"]
+OutcomeStatus = Literal["confirmed_fault", "no_fault_found", "inconclusive"]
 
 
 class PredictionHistoryCreate(StrictModel):
@@ -46,6 +47,12 @@ class PredictionHistoryCreate(StrictModel):
 class PredictionHistoryEntry(PredictionHistoryCreate):
     id: str
     created_at_utc: str
+    outcome_status: str = "unreviewed"
+    outcome_updated_at_utc: str | None = None
+
+
+class PredictionOutcomeUpdate(StrictModel):
+    outcome_status: OutcomeStatus
 
 
 router = APIRouter(prefix="/api/prediction-history", tags=["prediction-history"])
@@ -65,9 +72,16 @@ def _connect() -> sqlite3.Connection:
             summary TEXT NOT NULL,
             review_required INTEGER NOT NULL,
             model_release TEXT,
-            input_digest TEXT
+            input_digest TEXT,
+            outcome_status TEXT NOT NULL DEFAULT 'unreviewed',
+            outcome_updated_at_utc TEXT
         )
     """)
+    columns = {row["name"] for row in connection.execute("PRAGMA table_info(prediction_history)")}
+    if "outcome_status" not in columns:
+        connection.execute("ALTER TABLE prediction_history ADD COLUMN outcome_status TEXT NOT NULL DEFAULT 'unreviewed'")
+    if "outcome_updated_at_utc" not in columns:
+        connection.execute("ALTER TABLE prediction_history ADD COLUMN outcome_updated_at_utc TEXT")
     connection.execute("CREATE INDEX IF NOT EXISTS idx_prediction_history_created ON prediction_history(created_at_utc DESC)")
     connection.commit()
     return connection
@@ -78,7 +92,8 @@ def _entry(row: sqlite3.Row) -> PredictionHistoryEntry:
         id=row["id"], created_at_utc=row["created_at_utc"], component=row["component"],
         asset_id=row["asset_id"], source=row["source"], summary=row["summary"],
         review_required=bool(row["review_required"]), model_release=row["model_release"],
-        input_digest=row["input_digest"],
+        input_digest=row["input_digest"], outcome_status=row["outcome_status"],
+        outcome_updated_at_utc=row["outcome_updated_at_utc"],
     )
 
 
@@ -116,3 +131,18 @@ def list_prediction_history(
                 (limit,),
             ).fetchall()
     return [_entry(row) for row in rows]
+
+
+@router.patch("/{entry_id}/outcome", response_model=PredictionHistoryEntry)
+def update_prediction_outcome(entry_id: str, update: PredictionOutcomeUpdate) -> PredictionHistoryEntry:
+    updated_at = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+    with closing(_connect()) as connection:
+        cursor = connection.execute(
+            "UPDATE prediction_history SET outcome_status = ?, outcome_updated_at_utc = ? WHERE id = ?",
+            (update.outcome_status, updated_at, entry_id),
+        )
+        if cursor.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Prediction history entry was not found.")
+        connection.commit()
+        row = connection.execute("SELECT * FROM prediction_history WHERE id = ?", (entry_id,)).fetchone()
+    return _entry(row)

@@ -57,3 +57,37 @@ def test_prediction_history_validates_subsystem_and_caps_list_length(monkeypatch
 
     assert invalid.status_code == 422
     assert too_many.status_code == 422
+
+
+
+def test_prediction_outcome_can_be_recorded_and_persists_without_sensor_data(monkeypatch, tmp_path):
+    monkeypatch.setattr(prediction_history, "HISTORY_DB_PATH", tmp_path / "history.sqlite3")
+    saved = client.post("/api/prediction-history", json=_run()).json()
+
+    assert saved["outcome_status"] == "unreviewed"
+    updated = client.patch(
+        f"/api/prediction-history/{saved['id']}/outcome",
+        json={"outcome_status": "confirmed_fault"},
+    )
+
+    assert updated.status_code == 200, updated.text
+    entry = updated.json()
+    assert entry["outcome_status"] == "confirmed_fault"
+    assert entry["outcome_updated_at_utc"].endswith("Z")
+    assert client.get("/api/prediction-history").json()[0] == entry
+    assert "sensor_1" not in (tmp_path / "history.sqlite3").read_text(errors="ignore")
+
+
+def test_prediction_outcome_rejects_unknown_status_and_unknown_entry(monkeypatch, tmp_path):
+    monkeypatch.setattr(prediction_history, "HISTORY_DB_PATH", tmp_path / "history.sqlite3")
+    saved = client.post("/api/prediction-history", json=_run()).json()
+
+    invalid = client.patch(
+        f"/api/prediction-history/{saved['id']}/outcome", json={"outcome_status": "fixed"},
+    )
+    missing = client.patch(
+        "/api/prediction-history/not-a-real-id/outcome", json={"outcome_status": "inconclusive"},
+    )
+
+    assert invalid.status_code == 422
+    assert missing.status_code == 404
